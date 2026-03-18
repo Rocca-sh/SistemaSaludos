@@ -1,31 +1,57 @@
+namespace SistemaSaludos.Controller.HubPantalla;
+
+using System.Collections.Concurrent;
 using Microsoft.AspNetCore.SignalR;
+using SistemaSaludos.Modelo.Pantalla;
 
 public  class HubPantalla : Hub
 {
-    private static readonly Dictionary<string , string> Pantallas = new ();
-
-    public async Task RegistrarPantalla(string nombre)
+    public static readonly ConcurrentDictionary<string , Pantalla> Pantallas = new ();
+    public async Task<Pantalla> RegistrarPantalla(string nombre)
     {
-        Pantallas[Context.ConnectionId] = nombre;
+        string id = Context.ConnectionId;
+        Pantalla pantalla = new Pantalla(id, nombre);
+
+        Pantallas[id] = pantalla;
         Console.WriteLine($"Pantalla conectada: {nombre}");
-
         await Clients.Caller.SendAsync("Registrada", nombre);
+
+        return pantalla;
     }
 
-    public async Task EnviarAPantalla(string nombrePantalla, object datos)
+    public async Task EnviarAPantalla(string id, string json)
     {
-        var id = Pantallas.FirstOrDefault(p => p.Value == nombrePantalla).Key;
-        if (id != null)
-            await Clients.Client(id).SendAsync("ActualizarInfo", datos);
+        if (!Pantallas.TryGetValue(id, out var pantalla))
+        {
+            Console.WriteLine($" No se encontró pantalla con id: {id}");
+            return;
+        }
+    
+        if (pantalla.state == false)
+        {
+            Console.WriteLine($"La pantalla '{pantalla.name}' está desconectada");
+            return;
+        }
+
+        await Clients.Client(pantalla.idSig).SendAsync("ActualizarInfo", json);
+        Console.WriteLine($"JSON enviado a '{pantalla.name}'");
     }
 
-    public async Task EnviarATodas(object datos)
+    public async Task EnviarATodas(string json)
     {
-        await Clients.All.SendAsync("ActualizarInfo", datos);
+        await Clients.All.SendAsync("ActualizarInfo", json);
     }
 
-    public override Task OnDisconnectedAsync(Exception? exception)
+    public override async Task OnDisconnectedAsync(Exception? exception)
     {
-        return base.OnDisconnectedAsync(exception);
+        if (Pantallas.TryGetValue(Context.ConnectionId, out var pantalla))
+        {
+            pantalla.state  = false;
+            pantalla.lastcon = DateTime.Now;
+
+            Console.WriteLine($"Pantalla desconectada: {pantalla.name} a las {pantalla.lastcon:HH:mm:ss}");
+        }
+        await base.OnDisconnectedAsync(exception);
     }
+
 }
