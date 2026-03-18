@@ -1,0 +1,23 @@
+{
+  "version": 2,
+  "dgSpecHash": "QWT8nV45W4E=",
+  "success": true,
+  "projectFilePath": "/home/rocca/files/PantallasIdeo/PantallasIdeo.csproj",
+  "expectedPackageFiles": [
+    "/home/rocca/.nuget/packages/microsoft.aspnetcore.signalr/1.2.9/microsoft.aspnetcore.signalr.1.2.9.nupkg.sha512"
+  ],
+  "logs": [
+    {
+      "code": "NU1510",
+      "level": "Warning",
+      "message": "PackageReference Microsoft.AspNetCore.SignalR will not be pruned. Consider removing this package from your dependencies, as it is likely unnecessary.",
+      "projectPath": "/home/rocca/files/PantallasIdeo/PantallasIdeo.csproj",
+      "warningLevel": 1,
+      "filePath": "/home/rocca/files/PantallasIdeo/PantallasIdeo.csproj",
+      "libraryId": "Microsoft.AspNetCore.SignalR",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    }
+  ]
+}
