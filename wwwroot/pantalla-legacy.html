@@ -1,257 +1,271 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Pantalla Bienvenida</title>
+  <title>Pantalla AutoZone</title>
   <style>
-    * { margin:0; padding:0; box-sizing:border-box; }
-
-    html, body {
-      width:100%; height:100%;
-      background:#ffffff;
-      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-      color:#111111;
-      overflow:hidden;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
-    /* Fondo */
-    body::before {
-      content:'';
-      position:fixed;
-      top:0; left:0; right:0; bottom:0;
+    html,
+    body {
+      width: 100%;
+      height: 100%;
       background: #ffffff;
-      pointer-events:none;
-      z-index:0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: #111111;
+      overflow: hidden;
     }
 
-    /* Línea top de acento */
-    .top-bar {
-      position:fixed; top:0; left:0; right:0; height:6px;
-      background: -webkit-linear-gradient(left, #DF1A22, #F37021);
-      background: linear-gradient(90deg, #DF1A22, #F37021);
-      z-index:10;
-    }
-
-    /* Header */
-    .header {
-      position:fixed; top:6px; left:0; right:0;
-      display:-webkit-box; display:-webkit-flex; display:flex;
-      -webkit-box-align:center; -webkit-align-items:center; align-items:center;
-      -webkit-box-pack:justify; -webkit-justify-content:space-between; justify-content:space-between;
-      padding:24px 36px;
-      background:#ffffff;
-      border-bottom:1px solid #f0f0f0;
-      z-index:9;
-    }
-    .header-left {
-      display:-webkit-box; display:-webkit-flex; display:flex;
-      -webkit-box-align:center; -webkit-align-items:center; align-items:center;
-    }
-    .header-logo {
-      height: 90px;
-      margin-left:auto;
-      margin-right:auto;
-      -webkit-flex-shrink:0; flex-shrink:0;
-      object-fit:contain;
-    }
-    .header-name {
-      display: none;
-    }
-
-    /* Badge conexión */
+    /* Badge conexión (movido a la esquina inferior para limpiar el header) */
     .conn-badge {
-      position:fixed; top:110px; left:50%;
-      -webkit-transform:translateX(-50%); transform:translateX(-50%);
-      display:-webkit-box; display:-webkit-flex; display:flex;
-      -webkit-box-align:center; -webkit-align-items:center; align-items:center;
-      padding:8px 18px;
-      border-radius:30px;
-      border:1px solid #e0e0e0;
-      background:#ffffff;
-      font-size:12px; font-weight:bold;
-      letter-spacing:1px; text-transform:uppercase;
-      color:#555555;
-      box-shadow: 0px 2px 5px rgba(0,0,0,0.05);
-      z-index:20;
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      display: -webkit-box;
+      display: -webkit-flex;
+      display: flex;
+      -webkit-box-align: center;
+      -webkit-align-items: center;
+      align-items: center;
+      padding: 8px 18px;
+      border-radius: 30px;
+      border: 1px solid #e0e0e0;
+      background: #ffffff;
+      font-size: 14px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #555555;
+      box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.05);
+      z-index: 20;
     }
-    .conn-dot {
-      width:10px; height:10px; border-radius:50%;
-      margin-right:10px;
-      -webkit-flex-shrink:0; flex-shrink:0;
-    }
-    .connecting .conn-dot { background:#f59e0b; }
-    .connected  .conn-dot { background:#4caf87; }
-    .error      .conn-dot { background:#DF1A22; }
 
-    /* Main */
+    .conn-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 10px;
+      -webkit-flex-shrink: 0;
+      flex-shrink: 0;
+    }
+
+    .connecting .conn-dot { background: #FF6600; } /* Naranja AutoZone */
+    .connected .conn-dot { background: #4caf87; }
+    .error .conn-dot { background: #E31837; }     /* Rojo AutoZone */
+
+    /* Main Container */
     #main {
-      position:fixed;
-      top:90px; left:0; right:0; bottom:60px;
-      display:-webkit-box; display:-webkit-flex; display:flex;
-      -webkit-box-align:center; -webkit-align-items:center; align-items:center;
-      -webkit-box-pack:center; -webkit-justify-content:center; justify-content:center;
-      padding:40px;
-      z-index:1;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: -webkit-box;
+      display: -webkit-flex;
+      display: flex;
+      -webkit-box-align: center;
+      -webkit-align-items: center;
+      align-items: center;
+      -webkit-box-pack: center;
+      -webkit-justify-content: center;
+      justify-content: center;
+      padding: 40px;
+      z-index: 1;
     }
 
     /* ── IDLE ── */
     #screen-idle {
-      display:-webkit-box; display:-webkit-flex; display:flex;
-      -webkit-box-orient:vertical; -webkit-box-direction:normal;
-      -webkit-flex-direction:column; flex-direction:column;
-      -webkit-box-align:center; -webkit-align-items:center; align-items:center;
-      -webkit-box-pack:center; -webkit-justify-content:center; justify-content:center;
-      text-align:center;
+      display: -webkit-box;
+      display: -webkit-flex;
+      display: flex;
+      -webkit-box-orient: vertical;
+      -webkit-box-direction: normal;
+      -webkit-flex-direction: column;
+      flex-direction: column;
+      -webkit-box-align: center;
+      -webkit-align-items: center;
+      align-items: center;
+      -webkit-box-pack: center;
+      -webkit-justify-content: center;
+      justify-content: center;
+      text-align: center;
+      width: 100%;
     }
-    .idle-icon {
-      width: 120px;
-      height: 120px;
-      background: #fcfcfc;
-      border: 1px solid #f0f0f0;
-      border-radius: 50%;
-      display:-webkit-box; display:-webkit-flex; display:flex;
-      -webkit-box-align:center; -webkit-align-items:center; align-items:center;
-      -webkit-box-pack:center; -webkit-justify-content:center; justify-content:center;
-      margin-bottom:30px;
+
+    .idle-logo {
+      width: 100%;
+      max-width: 600px;
+      height: auto;
+      max-height: 40vh;
+      object-fit: contain;
+      margin-bottom: 60px;
     }
-    .idle-icon-inner {
-      font-size: 60px;
-      color: #DF1A22;
+
+    .idle-saludo {
+      font-size: 4rem; /* > 24px */
+      font-weight: bold;
+      color: #E31837; /* Rojo AutoZone */
+      margin-bottom: 20px;
+      line-height: 1.2;
     }
-    .idle-title {
-      font-size:3.5rem; font-weight:bold;
-      color:#222222;
-      margin-bottom:15px;
-      letter-spacing: -1px;
-    }
+
     .idle-sub {
-      font-size:1.2rem;
-      color:#888888;
-      letter-spacing:1px; text-transform:uppercase;
+      font-size: 1.8rem;
+      color: #FF6600; /* Naranja AutoZone */
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 2px;
     }
 
     /* ── MENSAJE ── */
     #screen-message {
-      display:none;
-      -webkit-box-orient:vertical; -webkit-box-direction:normal;
-      -webkit-flex-direction:column; flex-direction:column;
-      -webkit-box-align:center; -webkit-align-items:center; align-items:center;
-      -webkit-box-pack:center; -webkit-justify-content:center; justify-content:center;
-      text-align:center;
-      width:100%;
+      display: none;
+      -webkit-box-orient: vertical;
+      -webkit-box-direction: normal;
+      -webkit-flex-direction: column;
+      flex-direction: column;
+      -webkit-box-align: center;
+      -webkit-align-items: center;
+      align-items: center;
+      -webkit-box-pack: center;
+      -webkit-justify-content: center;
+      justify-content: center;
+      text-align: center;
+      width: 100%;
     }
+
     .msg-line {
-      width:80px; height:4px;
-      background: -webkit-linear-gradient(left, #DF1A22, #F37021);
-      background: linear-gradient(90deg, #DF1A22, #F37021);
-      margin-bottom:35px;
+      width: 120px;
+      height: 6px;
+      background: -webkit-linear-gradient(left, #E31837, #FF6600);
+      background: linear-gradient(90deg, #E31837, #FF6600);
+      margin-bottom: 40px;
     }
+
     .msg-bienvenido {
-      font-size:1.2rem; font-weight:bold;
-      letter-spacing:4px; text-transform:uppercase;
-      color:#DF1A22;
-      margin-bottom:15px;
+      font-size: 1.5rem;
+      font-weight: bold;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: #FF6600;
+      margin-bottom: 15px;
     }
+
     .msg-nombre {
-      font-size:5rem; font-weight:bold;
-      line-height:1.1;
-      color:#111111;
-      margin-bottom:20px;
-      word-break:break-word;
-      white-space:pre-line;
-      max-width:90vw;
-      letter-spacing: -2px;
+      font-size: 5.5rem;
+      font-weight: bold;
+      line-height: 1.1;
+      color: #111111;
+      margin-bottom: 20px;
+      word-break: break-word;
+      white-space: pre-line;
+      max-width: 90vw;
     }
+
     .msg-cargo {
-      font-size:1.5rem; font-weight:normal;
-      color:#777777;
-      letter-spacing:1px;
-      margin-bottom:35px;
-      line-height:1.4;
+      font-size: 2rem;
+      font-weight: normal;
+      color: #555555;
+      letter-spacing: 1px;
+      margin-bottom: 40px;
     }
+
     .msg-empresa-bloque {
-      display:-webkit-box; display:-webkit-flex; display:flex;
-      -webkit-box-align:center; -webkit-align-items:center; align-items:center;
-      padding:20px 35px;
-      border:1px solid #e0e0e0;
-      border-radius:10px;
-      background:#fafafa;
-      margin-bottom:35px;
+      display: -webkit-box;
+      display: -webkit-flex;
+      display: flex;
+      -webkit-box-align: center;
+      -webkit-align-items: center;
+      align-items: center;
+      padding: 20px 40px;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      background: #fafafa;
+      margin-bottom: 40px;
     }
+
     .msg-empresa-logo {
-      width:50px; height:50px;
-      object-fit:contain;
-      margin-right:16px;
+      width: 60px;
+      height: 60px;
+      object-fit: contain;
+      margin-right: 20px;
     }
+
     .msg-empresa-nombre {
-      font-size:1.6rem; font-weight:bold;
-      color:#333333;
-      letter-spacing:0px;
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #333333;
     }
+
     .msg-visita-label {
-      font-size:1rem; font-weight:bold;
-      color:#aaaaaa;
-      letter-spacing:2px; text-transform:uppercase;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #aaaaaa;
+      letter-spacing: 2px;
+      text-transform: uppercase;
     }
+
     .msg-anfitrion {
-      font-size:1.5rem; font-weight:bold;
-      color:#222222;
-      letter-spacing:0px;
-      margin-top:10px;
+      font-size: 2rem;
+      font-weight: bold;
+      color: #111111;
+      margin-top: 10px;
     }
 
     /* ── CLEAR ── */
-    #screen-clear { display:none; text-align:center; }
-    .clear-check {
-      font-size:80px;
-      color:#4caf87;
-      margin-bottom:20px;
-    }
-    .clear-text {
-      font-size:2rem; font-weight:bold;
-      color:#333333;
+    #screen-clear {
+      display: none;
+      text-align: center;
     }
 
-    /* Footer */
-    .footer-line {
-      position:fixed; bottom:60px; left:0; right:0; height:1px;
-      background:#f0f0f0;
-      z-index:5;
+    .clear-check {
+      font-size: 100px;
+      color: #4caf87;
+      margin-bottom: 20px;
     }
-    .footer-fecha {
-      position:fixed; bottom:20px; left:50%;
-      -webkit-transform:translateX(-50%); transform:translateX(-50%);
-      font-size:14px;
-      color:#999999;
-      letter-spacing:1px; text-transform:uppercase;
-      white-space:nowrap; z-index:5;
-      font-weight:bold;
+
+    .clear-text {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: #333333;
     }
-    .screen-label {
-      position:fixed; bottom:20px; right:30px;
-      font-size:12px; letter-spacing:1px;
-      text-transform:uppercase;
-      color:#bbbbbb; z-index:5;
-      font-weight:bold;
+
+    /* Botones Acción (si llegaran a usarse luego) */
+    .btn-action {
+      background: #E31837; /* Rojo AutoZone */
+      color: #FFFFFF;
+      font-size: 24px;
+      padding: 20px 50px;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin-top: 30px;
     }
-    
-    /* Animaciones suaves compatibles */
-    .fade-in { opacity: 1; transition: opacity 0.3s; }
-    .slide-in { opacity: 1; transition: opacity 0.3s; }
+
+    /* Animaciones suaves */
+    .fade-in {
+      opacity: 1;
+      transition: opacity 0.4s ease;
+    }
+
+    .slide-in {
+      opacity: 1;
+      transition: opacity 0.4s ease;
+    }
   </style>
 </head>
+
 <body>
 
-  <div class="top-bar"></div>
-
-  <header class="header">
-    <div class="header-left" style="width:100%; justify-content:center;">
-      <img src="/logo/png-transparent-autozone-logo-icons-logos-emojis-car-logos.png" alt="Logo" class="header-logo" id="logo-img">
-    </div>
-  </header>
-
+  <!-- Badge de enlace (ahora oculto estéticamente o empujado abajo) -->
   <div class="conn-badge connecting" id="conn-badge">
     <div class="conn-dot"></div>
     <span id="conn-texto">Conectando...</span>
@@ -259,19 +273,20 @@
 
   <div id="main">
 
+    <!-- ── IDLE / ESPERA (AutoZone Dynamic) ── -->
     <div id="screen-idle">
-      <div class="idle-icon">
-        <div class="idle-icon-inner">&#9733;</div>
-      </div>
-      <div class="idle-title">Esperando visitantes</div>
-      <div class="idle-sub">Sistema activo</div>
+      <!-- Ahora la estrella da lugar directamente a la marca centralizada gigantesca -->
+      <img src="/logo/png-transparent-autozone-logo-icons-logos-emojis-car-logos.png" alt="AutoZone Logo" class="idle-logo">
+      <div class="idle-saludo" id="idle-saludo-texto">¡Bienvenidos!</div>
+      <div class="idle-sub">Descubre lo Mejor</div>
     </div>
 
+    <!-- ── PANTALLA MENSAJE PRINCIPAL ── -->
     <div id="screen-message">
       <div class="msg-line"></div>
       <div class="msg-bienvenido">Bienvenido</div>
       <div class="msg-nombre" id="msg-nombre"></div>
-      <div class="msg-cargo"  id="msg-cargo"></div>
+      <div class="msg-cargo" id="msg-cargo"></div>
       <div class="msg-empresa-bloque" id="msg-empresa-bloque" style="display:none">
         <img class="msg-empresa-logo" id="msg-empresa-logo" src="" alt="" style="display:none">
         <div class="msg-empresa-nombre" id="msg-empresa-nombre"></div>
@@ -280,6 +295,7 @@
       <div class="msg-anfitrion" id="msg-anfitrion"></div>
     </div>
 
+    <!-- ── PANTALLA CLEAR (OK) ── -->
     <div id="screen-clear">
       <div class="clear-check">&#10003;</div>
       <div class="clear-text">Pantalla lista</div>
@@ -287,378 +303,327 @@
 
   </div>
 
-  <div class="footer-line"></div>
-  <div class="footer-fecha" id="footer-fecha"></div>
-  <div class="screen-label"  id="screen-label"></div>
-
-<script>
-// ════════════════════════════════════════════════
-//  CONFIGURACIÓN
-// ════════════════════════════════════════════════
-var SERVER_URL   = window.location.origin;
-var WS_URL       = SERVER_URL.replace("http", "ws") + "/hub";
-var SCREEN_NAME  = (function() {
-  try {
-    var q = window.location.search;
-    if (q) {
-      var pairs = q.substring(1).split("&");
-      for (var i = 0; i < pairs.length; i++) {
-        var kv = pairs[i].split("=");
-        if (kv[0] === "nombre") return decodeURIComponent(kv[1]);
-      }
-    }
-  } catch(e) {}
-  return "Pantalla Legacy";
-})();
-
-// ════════════════════════════════════════════════
-//  RELOJ
-// ════════════════════════════════════════════════
-function startClock() {
-  function tick() {
-    var now = new Date();
-    var h   = now.getHours();
-    var m   = now.getMinutes();
-    document.getElementById("clock").textContent =
-      (h < 10 ? "0" : "") + h + ":" + (m < 10 ? "0" : "") + m;
-
-    var dias   = ["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
-    var meses  = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
-    document.getElementById("footer-fecha").textContent =
-      dias[now.getDay()] + ", " + now.getDate() + " de " + meses[now.getMonth()] + " de " + now.getFullYear();
-  }
-  tick();
-  setInterval(tick, 1000);
-}
-
-// ════════════════════════════════════════════════
-//  PANTALLAS
-// ════════════════════════════════════════════════
-function mostrarPantalla(nombre) {
-  var idle    = document.getElementById("screen-idle");
-  var message = document.getElementById("screen-message");
-  var clear   = document.getElementById("screen-clear");
-
-  idle.style.display    = "none";
-  message.style.display = "none";
-  clear.style.display   = "none";
-
-  if (nombre === "idle") {
-    idle.style.display = "-webkit-flex";
-    idle.style.display = "flex";
-    idle.className = "fade-in";
-  } else if (nombre === "message") {
-    message.style.display = "-webkit-flex";
-    message.style.display = "flex";
-    message.className = "slide-in";
-  } else if (nombre === "clear") {
-    clear.style.display = "-webkit-flex";
-    clear.style.display = "flex";
-    clear.className = "fade-in";
-  }
-}
-
-function setConn(estado, texto) {
-  var badge = document.getElementById("conn-badge");
-  badge.className = "conn-badge " + estado;
-  document.getElementById("conn-texto").textContent = texto;
-}
-
-// ════════════════════════════════════════════════
-//  PROCESAR MENSAJE DEL SERVIDOR
-// ════════════════════════════════════════════════
-function procesarMensaje(json) {
-  var data;
-  try { data = JSON.parse(json); } catch(e) { return; }
-
-  var type    = data.type    || data[0];
-  var payload = data.payload || data[1];
-
-  // SignalR WebSocket manda arrays: [método, arg1, arg2, ...]
-  // Para mensajes de hub el formato es distinto, ver abajo en el WS handler
-
-  if (type === "limpiar") {
-    mostrarPantalla("clear");
-    setTimeout(function() { mostrarPantalla("idle"); }, 3000);
-    return;
-  }
-
-  if (type === "saludoVisitante" || type === "saludoGrupo") {
-    mostrarSaludo(payload, type);
-    return;
-  }
-}
-
-function mostrarSaludo(payload, type) {
-  if (!payload) return;
-
-  // Nombre(s)
-  var nombreTexto = "";
-  if (type === "saludoGrupo" && payload.visitantes && payload.visitantes.length) {
-    var arr = [];
-    for (var i = 0; i < payload.visitantes.length; i++) {
-      arr.push(payload.visitantes[i].nombre || payload.visitantes[i].name || "");
-    }
-    nombreTexto = arr.join("\n");
-  } else {
-    nombreTexto = payload.nombre || payload.name || payload.visitante || "Visitante";
-  }
-
-  var nombreEl = document.getElementById("msg-nombre");
-  nombreEl.textContent = nombreTexto;
-
-  // Tamaño de fuente según líneas
-  var lineas = nombreTexto.split("\n").length;
-  if      (lineas >= 4) nombreEl.style.fontSize = "2.2rem";
-  else if (lineas >= 3) nombreEl.style.fontSize = "2.8rem";
-  else if (lineas >= 2) nombreEl.style.fontSize = "3.5rem";
-  else                  nombreEl.style.fontSize = "4.5rem";
-
-  document.getElementById("msg-cargo").textContent =
-    payload.cargo || payload.role || payload.puesto || "";
-
-  // Empresa
-  var empresa = payload.empresa || payload.company || "";
-  var logo    = payload.logo    || payload.logoUrl  || "";
-  var bloque  = document.getElementById("msg-empresa-bloque");
-  if (empresa) {
-    document.getElementById("msg-empresa-nombre").textContent = empresa;
-    var logoImg = document.getElementById("msg-empresa-logo");
-    if (logo) { logoImg.src = logo; logoImg.style.display = "inline-block"; }
-    else       { logoImg.style.display = "none"; }
-    bloque.style.display = "-webkit-flex";
-    bloque.style.display = "flex";
-  } else {
-    bloque.style.display = "none";
-  }
-
-  document.getElementById("msg-anfitrion").textContent =
-    payload.anfitrion || payload.host || payload.para || "";
-
-  mostrarPantalla("message");
-}
-
-// ════════════════════════════════════════════════
-//  WEBSOCKET NATIVO — PROTOCOLO SIGNALR MANUAL
-//  (sin librería, compatible con cualquier WebView)
-// ════════════════════════════════════════════════
-var ws           = null;
-var wsReady      = false;
-var retryTimer   = null;
-var RETRY_DELAY  = 3000;
-
-// SignalR sobre WebSocket usa un protocolo JSON simple:
-// 1. Negociación HTTP POST a /hub/negotiate
-// 2. Conexión WebSocket con ?id=<token>
-// 3. Handshake: enviar {"protocol":"json","version":1} + chr(30)
-// 4. Invocar métodos: {"type":1,"invocationId":"0","target":"Metodo","arguments":[...]} + chr(30)
-// 5. Recibir: {"type":1,"target":"NombreEvento","arguments":[...]} + chr(30)
-
-var SEP = String.fromCharCode(30); // separador de mensajes SignalR
-
-function negotiate() {
-  var xhr = new XMLHttpRequest();
-  xhr.open("POST", SERVER_URL + "/hub/negotiate?negotiateVersion=1", true);
-  xhr.setRequestHeader("Content-Type", "application/json");
-  xhr.onreadystatechange = function() {
-    if (xhr.readyState === 4) {
-      if (xhr.status === 200) {
-        try {
-          var resp = JSON.parse(xhr.responseText);
-          var token = resp.connectionToken || resp.connectionId || "";
-          connectWS(token);
-        } catch(e) {
-          connectWS(""); // intentar sin token
+  <script>
+    // ════════════════════════════════════════════════
+    //  VARIABLES Y ENLACE BASE
+    // ════════════════════════════════════════════════
+    var SERVER_URL = window.location.origin;
+    var WS_URL = SERVER_URL.replace("http", "ws") + "/hub";
+    var SCREEN_NAME = (function () {
+      try {
+        var q = window.location.search;
+        if (q) {
+          var pairs = q.substring(1).split("&");
+          for (var i = 0; i < pairs.length; i++) {
+            var kv = pairs[i].split("=");
+            if (kv[0] === "nombre") return decodeURIComponent(kv[1]);
+          }
         }
+      } catch (e) { }
+      return "AutoZone Kiosk"; 
+    })();
+
+    // ════════════════════════════════════════════════
+    //  1. GENERACIÓN DE MENSAJERÍA DINÁMICA (AutoZone)
+    // ════════════════════════════════════════════════
+    var mensajesRegionales = [
+      "¡Bienvenidos a AutoZone Tijuana!",
+      "Saludos desde Baja California",
+      "El mejor servicio en Monterrey",
+      "Siempre cerca de ti en Cancún",
+      "Listos para arrancar en Guadalajara",
+      "Rendimiento puro en Querétaro",
+      "Todo para tu auto en Ciudad de México"
+    ];
+
+    // ════════════════════════════════════════════════
+    //  2. LÓGICA DE GUARDADO / SELECCIÓN DE SALUDO
+    // ════════════════════════════════════════════════
+    var gestorSaludos = {
+      saludoActivo: "",
+      historial: [],
+      // Función sencilla requerida (compatible nativa)
+      guardarSaludoParaEnvio: function(saludoTexto) {
+        this.saludoActivo = saludoTexto;
+        var infoSaludo = {
+          texto: saludoTexto,
+          fecha: new Date().getTime(),
+          pantalla: SCREEN_NAME
+        };
+        
+        this.historial.push(infoSaludo);
+        
+        // (Preparación) Aquí enviaríamos al servidor, sea por AJAX o WebSocket
+        // Ejemplo genérico si quisiéramos inyectarlo por signalR:
+        // invocar("ReportarSaludoEnPantalla", [infoSaludo]);
+      }
+    };
+
+    function rotarSaludoRegional() {
+      if(document.getElementById("screen-idle").style.display === "none") return;
+      
+      var rnd = Math.floor(Math.random() * mensajesRegionales.length);
+      var nuevo = mensajesRegionales[rnd];
+      
+      var textoEl = document.getElementById("idle-saludo-texto");
+      if(textoEl) {
+        // Pequeño guiño de opacidad (amigable y sin keyframes pesados)
+        textoEl.style.opacity = 0;
+        setTimeout(function(){
+          textoEl.textContent = nuevo;
+          textoEl.style.opacity = 1;
+        }, 300);
+      }
+
+      // Guardamos la iteración validando el requerimiento del sistema
+      gestorSaludos.guardarSaludoParaEnvio(nuevo);
+    }
+    
+    // Rota saludo cada 12 segundos
+    setInterval(rotarSaludoRegional, 12000);
+    rotarSaludoRegional();
+
+    // ════════════════════════════════════════════════
+    //  3. DISPLAY Y PANTALLAS (LEGACY COMPATIBLE)
+    // ════════════════════════════════════════════════
+    function mostrarPantalla(nombre) {
+      var idle = document.getElementById("screen-idle");
+      var message = document.getElementById("screen-message");
+      var clear = document.getElementById("screen-clear");
+
+      idle.style.display = "none";
+      message.style.display = "none";
+      clear.style.display = "none";
+
+      if (nombre === "idle") {
+        idle.style.display = "-webkit-flex";
+        idle.style.display = "flex";
+        idle.className = "fade-in";
+      } else if (nombre === "message") {
+        message.style.display = "-webkit-flex";
+        message.style.display = "flex";
+        message.className = "slide-in";
+      } else if (nombre === "clear") {
+        clear.style.display = "-webkit-flex";
+        clear.style.display = "flex";
+        clear.className = "fade-in";
+      }
+    }
+
+    function setConn(estado, texto) {
+      var badge = document.getElementById("conn-badge");
+      if(badge) badge.className = "conn-badge " + estado;
+      var textoEl = document.getElementById("conn-texto");
+      if(textoEl) textoEl.textContent = texto;
+    }
+
+    // ════════════════════════════════════════════════
+    //  4. PROCESAR JSON RECIBIDO VIA HUB
+    // ════════════════════════════════════════════════
+    function procesarMensajeData(data) {
+      if (!data) return;
+      var type = data.type;
+      var payload = data.payload;
+
+      if (type === "limpiar") {
+        mostrarPantalla("clear");
+        setTimeout(function () { mostrarPantalla("idle"); }, 3000);
+        return;
+      }
+      if (type === "saludoVisitante" || type === "saludoGrupo") {
+        mostrarSaludo(payload, type);
+        return;
+      }
+      if (type === "bienvenida") {
+        mostrarSaludo({
+          nombre: payload.nombre || "",
+          cargo: payload.cargo || "",
+          empresa: payload.empresa || "",
+          anfitrion: payload.anfitrion || ""
+        }, "saludoVisitante");
+        return;
+      }
+      if (type === "texto") {
+        mostrarTextoLibre(payload);
+        return;
+      }
+      if (type === "aviso") {
+        mostrarAviso(payload);
+        return;
+      }
+    }
+
+    function mostrarSaludo(payload, type) {
+      if (!payload) return;
+
+      var nombreTexto = "";
+      if (type === "saludoGrupo" && payload.visitantes && payload.visitantes.length) {
+        var arr = [];
+        for (var i = 0; i < payload.visitantes.length; i++) {
+          arr.push(payload.visitantes[i].nombre || payload.visitantes[i].name || "");
+        }
+        nombreTexto = arr.join("\n");
       } else {
-        setConn("error", "Error servidor");
+        nombreTexto = payload.nombre || payload.name || payload.visitante || "Visitante";
+      }
+
+      var nombreEl = document.getElementById("msg-nombre");
+      nombreEl.textContent = nombreTexto;
+
+      var lineas = nombreTexto.split("\n").length;
+      if (lineas >= 4) nombreEl.style.fontSize = "3rem";
+      else if (lineas >= 3) nombreEl.style.fontSize = "4rem";
+      else if (lineas >= 2) nombreEl.style.fontSize = "5rem";
+      else nombreEl.style.fontSize = "6rem";
+
+      document.getElementById("msg-cargo").textContent = 
+        payload.cargo || payload.role || payload.puesto || "";
+
+      var empresa = payload.empresa || payload.company || "";
+      var logo = payload.logo || payload.logoUrl || "";
+      var bloque = document.getElementById("msg-empresa-bloque");
+      
+      if (empresa) {
+        document.getElementById("msg-empresa-nombre").textContent = empresa;
+        var logoImg = document.getElementById("msg-empresa-logo");
+        if (logo) { logoImg.src = logo; logoImg.style.display = "inline-block"; }
+        else { logoImg.style.display = "none"; }
+        bloque.style.display = "-webkit-flex";
+        bloque.style.display = "flex";
+      } else {
+        bloque.style.display = "none";
+      }
+
+      document.getElementById("msg-anfitrion").textContent =
+        payload.anfitrion || payload.host || payload.para || "";
+
+      mostrarPantalla("message");
+    }
+
+    function mostrarTextoLibre(payload) {
+      if (!payload) return;
+      document.getElementById("msg-nombre").textContent = payload.titulo || "";
+      document.getElementById("msg-nombre").style.fontSize = "4.5rem";
+      document.getElementById("msg-cargo").textContent = payload.subtexto || "";
+      document.getElementById("msg-empresa-bloque").style.display = "none";
+      document.getElementById("msg-anfitrion").textContent = "";
+      document.getElementById("msg-bienvenido").textContent = "";
+      mostrarPantalla("message");
+    }
+
+    function mostrarAviso(payload) {
+      if (!payload) return;
+      document.getElementById("msg-nombre").textContent = (payload.icono || "📢") + " " + (payload.texto || "");
+      document.getElementById("msg-nombre").style.fontSize = "4rem";
+      document.getElementById("msg-cargo").textContent = payload.sub || "";
+      document.getElementById("msg-empresa-bloque").style.display = "none";
+      document.getElementById("msg-anfitrion").textContent = "";
+      document.getElementById("msg-bienvenido").textContent = "Aviso";
+      mostrarPantalla("message");
+    }
+
+    // ════════════════════════════════════════════════
+    //  5. MOTOR WEBSOCKET "SIGNALR CRUDO" (SIN LIBRERÍA)
+    // ════════════════════════════════════════════════
+    var ws = null;
+    var wsReady = false;
+    var retryTimer = null;
+    var RETRY_DELAY = 3000;
+    var SEP = String.fromCharCode(30);
+
+    function negotiate() {
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", SERVER_URL + "/hub/negotiate?negotiateVersion=1", true);
+      xhr.setRequestHeader("Content-Type", "application/json");
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+          if (xhr.status === 200) {
+            try {
+              var resp = JSON.parse(xhr.responseText);
+              var token = resp.connectionToken || resp.connectionId || "";
+              connectWS(token);
+            } catch (e) { connectWS(""); }
+          } else {
+            setConn("error", "Servidor Ausente");
+            retryTimer = setTimeout(negotiate, RETRY_DELAY);
+          }
+        }
+      };
+      xhr.onerror = function () {
+        setConn("error", "Sin Red");
         retryTimer = setTimeout(negotiate, RETRY_DELAY);
+      };
+      xhr.send("{}");
+    }
+
+    function connectWS(token) {
+      var url = WS_URL;
+      if (token) url += "?id=" + encodeURIComponent(token);
+      try { ws = new WebSocket(url); } catch (e) {
+        setConn("error", "Navegador No Soportado");
+        return;
+      }
+      ws.onopen = function () { ws.send('{"protocol":"json","version":1}' + SEP); };
+      ws.onmessage = function (evt) {
+        var raw = evt.data;
+        var partes = raw.split(SEP);
+        for (var i = 0; i < partes.length; i++) {
+          var parte = partes[i].trim();
+          if (!parte) continue;
+          manejarMensajeWS(parte);
+        }
+      };
+      ws.onclose = function () {
+        wsReady = false;
+        setConn("error", "Caída WS");
+        retryTimer = setTimeout(negotiate, RETRY_DELAY);
+      };
+      ws.onerror = function () {
+        wsReady = false;
+        setConn("error", "Falla WS");
+      };
+    }
+
+    function manejarMensajeWS(texto) {
+      var msg;
+      try { msg = JSON.parse(texto); } catch (e) { return; }
+      if (msg.type === 6) { wsSend({ type: 6 }); return; }
+      if (msg.type === undefined) {
+        if (msg.error) { setConn("error", "Bloqueado"); return; }
+        wsReady = true;
+        setConn("connected", "En línea");
+        invocar("RegistrarPantalla", [SCREEN_NAME]);
+        return;
+      }
+      if (msg.type === 1) {
+        var target = (msg.target || "").toLowerCase();
+        if (target === "actualizarinfo") {
+          var arg = msg.arguments && msg.arguments[0];
+          if (!arg) return;
+          var data;
+          try { data = typeof arg === "string" ? JSON.parse(arg) : arg; } catch (e) { return; }
+          procesarMensajeData(data);
+          return;
+        }
       }
     }
-  };
-  xhr.onerror = function() {
-    setConn("error", "Sin red — reintentando...");
-    retryTimer = setTimeout(negotiate, RETRY_DELAY);
-  };
-  xhr.send("{}");
-}
 
-function connectWS(token) {
-  var url = WS_URL;
-  if (token) url += "?id=" + encodeURIComponent(token);
-
-  try {
-    ws = new WebSocket(url);
-  } catch(e) {
-    setConn("error", "WS no soportado");
-    return;
-  }
-
-  ws.onopen = function() {
-    // Handshake SignalR
-    ws.send('{"protocol":"json","version":1}' + SEP);
-  };
-
-  ws.onmessage = function(evt) {
-    var raw = evt.data;
-    // Los mensajes pueden venir concatenados separados por SEP (chr30)
-    var partes = raw.split(SEP);
-    for (var i = 0; i < partes.length; i++) {
-      var parte = partes[i].trim();
-      if (!parte) continue;
-      manejarMensajeWS(parte);
+    var invocacionId = 0;
+    function invocar(metodo, args) {
+      if (!wsReady || !ws || ws.readyState !== 1) return;
+      var msg = { type: 1, invocationId: String(invocacionId++), target: metodo, arguments: args || [] };
+      wsSend(msg);
     }
-  };
-
-  ws.onclose = function() {
-    wsReady = false;
-    setConn("error", "Desconectado");
-    retryTimer = setTimeout(negotiate, RETRY_DELAY);
-  };
-
-  ws.onerror = function() {
-    wsReady = false;
-    setConn("error", "Error WS");
-  };
-}
-
-function manejarMensajeWS(texto) {
-  var msg;
-  try { msg = JSON.parse(texto); } catch(e) { return; }
-
-  // type 6 = ping → responder con pong
-  if (msg.type === 6) {
-    wsSend({ type: 6 });
-    return;
-  }
-
-  // Respuesta al handshake (no tiene "type", solo tiene o no "error")
-  if (msg.type === undefined) {
-    if (msg.error) {
-      setConn("error", "Handshake fallido");
-      return;
-    }
-    // Handshake OK — registrar pantalla
-    wsReady = true;
-    setConn("connected", "Conectado");
-    document.getElementById("screen-label").textContent = SCREEN_NAME;
-    document.getElementById("header-nombre").textContent = SCREEN_NAME;
-    invocar("RegistrarPantalla", [SCREEN_NAME]);
-    return;
-  }
-
-  // type 1 = invocación desde el servidor (evento)
-  if (msg.type === 1) {
-    var target = (msg.target || "").toLowerCase();
-
-    if (target === "actualizarinfo") {
-      // El servidor manda el JSON como string dentro de arguments[0]
-      var arg = msg.arguments && msg.arguments[0];
-      if (!arg) return;
-      var data;
-      try { data = typeof arg === "string" ? JSON.parse(arg) : arg; } catch(e) { return; }
-      procesarMensajeData(data);
-      return;
+    function wsSend(obj) {
+      try { if (ws && ws.readyState === 1) ws.send(JSON.stringify(obj) + SEP); } catch (e) { }
     }
 
-    if (target === "registrada") {
-      var nombre = msg.arguments && msg.arguments[0];
-      if (nombre) {
-        document.getElementById("screen-label").textContent  = nombre;
-        document.getElementById("header-nombre").textContent = nombre;
-      }
-      return;
-    }
-  }
-
-  // type 3 = resultado de invocación (ignorar)
-}
-
-function procesarMensajeData(data) {
-  if (!data) return;
-  var type    = data.type;
-  var payload = data.payload;
-
-  if (type === "limpiar") {
-    mostrarPantalla("clear");
-    setTimeout(function() { mostrarPantalla("idle"); }, 3000);
-    return;
-  }
-  if (type === "saludoVisitante" || type === "saludoGrupo") {
-    mostrarSaludo(payload, type);
-    return;
-  }
-  if (type === "bienvenida") {
-    // Mensaje libre tipo bienvenida: usa mismo campo nombre
-    mostrarSaludo({
-      nombre:    payload.nombre    || "",
-      cargo:     payload.cargo     || "",
-      empresa:   payload.empresa   || "",
-      anfitrion: payload.anfitrion || "",
-    }, "saludoVisitante");
-    return;
-  }
-  if (type === "texto") {
-    mostrarTextoLibre(payload);
-    return;
-  }
-  if (type === "aviso") {
-    mostrarAviso(payload);
-    return;
-  }
-}
-
-function mostrarTextoLibre(payload) {
-  if (!payload) return;
-  var nombreEl = document.getElementById("msg-nombre");
-  nombreEl.textContent = payload.titulo || "";
-  nombreEl.style.fontSize = "3.5rem";
-  document.getElementById("msg-cargo").textContent      = payload.subtexto || "";
-  document.getElementById("msg-empresa-bloque").style.display = "none";
-  document.getElementById("msg-anfitrion").textContent  = "";
-  document.getElementById("msg-bienvenido").textContent = "";
-  mostrarPantalla("message");
-}
-
-function mostrarAviso(payload) {
-  if (!payload) return;
-  var nombreEl = document.getElementById("msg-nombre");
-  nombreEl.textContent  = (payload.icono || "📢") + " " + (payload.texto || "");
-  nombreEl.style.fontSize = "2.8rem";
-  document.getElementById("msg-cargo").textContent     = payload.sub || "";
-  document.getElementById("msg-empresa-bloque").style.display = "none";
-  document.getElementById("msg-anfitrion").textContent = "";
-  document.getElementById("msg-bienvenido").textContent = "Aviso";
-  mostrarPantalla("message");
-}
-
-var invocacionId = 0;
-function invocar(metodo, args) {
-  if (!wsReady || !ws || ws.readyState !== 1) return;
-  var msg = {
-    type:         1,
-    invocationId: String(invocacionId++),
-    target:       metodo,
-    arguments:    args || []
-  };
-  wsSend(msg);
-}
-
-function wsSend(obj) {
-  try {
-    if (ws && ws.readyState === 1) {
-      ws.send(JSON.stringify(obj) + SEP);
-    }
-  } catch(e) {}
-}
-
-// ════════════════════════════════════════════════
-//  INICIO
-// ════════════════════════════════════════════════
-// startClock();
-mostrarPantalla("idle");
-setConn("connecting", "Conectando...");
-negotiate();
-</script>
+    // ════════════════════════════════════════════════
+    //  INICIO Y SECUENCIA DE ARRANQUE
+    // ════════════════════════════════════════════════
+    mostrarPantalla("idle");
+    setConn("connecting", "Enlazando...");
+    negotiate();
+  </script>
 </body>
 </html>
