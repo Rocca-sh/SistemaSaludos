@@ -34,6 +34,14 @@ var app = builder.Build();
 app.UseCors();
 app.UseStaticFiles(); // sirve wwwroot/ (css, js, imágenes, etc.)
 
+// Mapea la carpeta original "logo" para que sea accesible públicamente en la URL /logo/...
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(
+        Path.Combine(builder.Environment.ContentRootPath, "logo")),
+    RequestPath = "/logo"
+});
+
 // ── Rutas de páginas ─────────────────────────────────────────
 
 // Redirige la raíz al panel recepcionista
