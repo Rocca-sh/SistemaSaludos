@@ -355,19 +355,19 @@
               <div class="col-2">
                 <div class="form-group">
                   <label class="form-label">Nombre *</label>
-                  <input type="text" id="msg-nombre" class="form-select" placeholder="Ej: Carlos Pérez"
+                  <input type="text" id="msg-nombre" class="form-select" placeholder="Ej: Nombre del visitante"
                     oninput="actualizarPreview()">
                 </div>
                 <div class="form-group">
                   <label class="form-label">Cargo / Rol</label>
-                  <input type="text" id="msg-cargo" class="form-select" placeholder="Ej: Director"
+                  <input type="text" id="msg-cargo" class="form-select" placeholder="Ej: Rol"
                     oninput="actualizarPreview()">
                 </div>
               </div>
               <div class="col-2">
                 <div class="form-group">
                   <label class="form-label">Empresa</label>
-                  <input type="text" id="msg-empresa" class="form-select" placeholder="Ej: Tech Corp"
+                  <input type="text" id="msg-empresa" class="form-select" placeholder="Ej: Empresa"
                     oninput="actualizarPreview()">
                 </div>
                 <div class="form-group">
@@ -451,6 +451,7 @@
               <button id="msg-send-btn" class="btn btn-primary" onclick="enviarMensajeLibre()" style="flex:1">
                 📤 Enviar mensaje
               </button>
+              <button class="btn btn-secondary" onclick="guardarMensajeEnServidor()">💾 Guardar en Servidor</button>
               <button class="btn btn-ghost" onclick="limpiarFormMensaje()">↺ Limpiar</button>
             </div>
 

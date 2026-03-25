@@ -69,6 +69,44 @@ app.MapGet("/pantalla-legacy", async (HttpContext ctx) =>
 });
 
 // ── API y SignalR ─────────────────────────────────────────────
+
+app.MapGet("/api/greetings", () =>
+{
+    var path = Path.Combine(builder.Environment.ContentRootPath, "greetings.json");
+    if (!System.IO.File.Exists(path))
+    {
+        return Results.Ok(new string[] { "¡Bienvenidos a AutoZone!", "Encuentra todo para tu auto" });
+    }
+    return Results.Content(System.IO.File.ReadAllText(path), "application/json");
+});
+
+app.MapPost("/api/greetings", async (HttpContext ctx) =>
+{
+    using var reader = new StreamReader(ctx.Request.Body);
+    var body = await reader.ReadToEndAsync();
+    var path = Path.Combine(builder.Environment.ContentRootPath, "greetings.json");
+    
+    var list = new System.Collections.Generic.List<string>();
+    if (System.IO.File.Exists(path))
+    {
+        list = System.Text.Json.JsonSerializer.Deserialize<System.Collections.Generic.List<string>>(System.IO.File.ReadAllText(path)) ?? list;
+    }
+    
+    try {
+        var bodyJson = System.Text.Json.JsonDocument.Parse(body);
+        if (bodyJson.RootElement.TryGetProperty("texto", out var textEl)) {
+            var nuevo = textEl.GetString();
+            if (!string.IsNullOrWhiteSpace(nuevo) && !list.Contains(nuevo))
+            {
+                list.Add(nuevo);
+                System.IO.File.WriteAllText(path, System.Text.Json.JsonSerializer.Serialize(list));
+            }
+        }
+    } catch { }
+
+    return Results.Ok(list);
+});
+
 app.MapControllers();
 app.MapHub<HubPantalla>("/hub");
 

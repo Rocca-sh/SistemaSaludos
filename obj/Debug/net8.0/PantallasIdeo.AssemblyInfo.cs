@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PantallasIdeo")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a2874a4301ffa863aefb7c76b675868e7a261a5c")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+861084bed0b948a1846b4aac9d375309a781c461")]
 [assembly: System.Reflection.AssemblyProductAttribute("PantallasIdeo")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PantallasIdeo")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

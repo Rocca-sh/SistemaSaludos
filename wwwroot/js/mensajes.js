@@ -278,3 +278,40 @@ function limpiarFormMensaje() {
   if (iconoSel) iconoSel.selectedIndex = 0;
   actualizarPreview();
 }
+
+// ── GUARDAR EN SERVIDOR ────────────────────────────────────────
+async function guardarMensajeEnServidor() {
+  var texto = "";
+  if (msgState.tipo === "texto") {
+    texto = (document.getElementById("msg-titulo") || {}).value || "";
+  } else if (msgState.tipo === "aviso") {
+    texto = (document.getElementById("msg-aviso-texto") || {}).value || "";
+  } else if (msgState.tipo === "bienvenida") {
+    var n = (document.getElementById("msg-nombre") || {}).value || "";
+    if (n) texto = "¡Bienvenido " + n + "!";
+  } else {
+    if (typeof showToast === "function") showToast("Escribe un mensaje en otra pestaña de mensaje", "info");
+    return;
+  }
+
+  texto = texto.trim();
+  if (!texto) {
+    if (typeof showToast === "function") showToast("El mensaje está vacío. Escríbelo primero.", "error");
+    return;
+  }
+
+  try {
+    var resp = await fetch("/api/greetings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ texto: texto })
+    });
+    if (resp.ok) {
+      if (typeof showToast === "function") showToast("✅ Guardado en rotación de servidor como JSON", "success");
+    } else {
+      throw new Error("HTTP error " + resp.status);
+    }
+  } catch(e) {
+    if (typeof showToast === "function") showToast("❌ Hubo un error al intentar guardarlo", "error");
+  }
+}
