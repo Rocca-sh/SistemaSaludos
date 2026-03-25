@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Recepcionista — Visitor Display</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    /* ── ESTILOS EXTRA: Vista Mensajes ───────────────── */
+    .msg-tipos {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .msg-tipo-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 16px 20px;
+      border: 2px solid var(--border, #e2e8f0);
+      border-radius: 10px;
+      background: var(--card-bg, #fff);
+      cursor: pointer;
+      transition: all 0.2s;
+      min-width: 110px;
+      font-size: 0.85rem;
+      color: var(--text-secondary, #64748b);
+      font-weight: 600;
+    }
+    .msg-tipo-btn:hover  { border-color: #6366f1; color: #6366f1; }
+    .msg-tipo-btn.active { border-color: #6366f1; background: #eef2ff; color: #4338ca; }
+    .msg-tipo-btn .tipo-icon { font-size: 1.6rem; }
+
+    .preview-box {
+      background: #0a0f1e;
+      border-radius: 10px;
+      padding: 28px 24px;
+      min-height: 180px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 8px;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .preview-box::before {
+      content:'';
+      position:absolute; top:0; left:0; right:0; height:3px;
+      background: linear-gradient(90deg, transparent, #c9a84c, transparent);
+    }
+    .preview-label {
+      font-size: 0.6rem; font-weight: 700;
+      letter-spacing: 3px; text-transform: uppercase;
+      color: rgba(201,168,76,0.5);
+      position: absolute; top: 12px; left: 16px;
+    }
+    .preview-bienvenido {
+      font-size: 0.7rem; font-weight: 700;
+      letter-spacing: 4px; text-transform: uppercase;
+      color: #c9a84c; margin-top: 8px;
+    }
+    .preview-nombre {
+      font-size: 2rem; font-weight: 900;
+      color: #e8c97a; line-height: 1.1;
+      white-space: pre-line; word-break: break-word;
+    }
+    .preview-sub {
+      font-size: 0.8rem; color: rgba(244,240,232,0.45);
+      letter-spacing: 1px;
+    }
+    .preview-empresa {
+      font-size: 0.95rem; font-weight: 700;
+      color: #e8c97a;
+      padding: 6px 16px;
+      border: 1px solid rgba(201,168,76,0.25);
+      border-radius: 4px;
+      background: rgba(201,168,76,0.1);
+    }
+    .preview-texto-libre {
+      font-size: 1.4rem; font-weight: 700;
+      color: #f4f0e8; line-height: 1.3;
+      white-space: pre-line;
+    }
+    .preview-subtexto {
+      font-size: 0.85rem;
+      color: rgba(244,240,232,0.45);
+      white-space: pre-line;
+    }
+    .preview-aviso-icono { font-size: 2rem; }
+    .preview-aviso-texto {
+      font-size: 1.2rem; font-weight: 700;
+      color: #fbbf24; white-space: pre-line;
+    }
+    .preview-aviso-sub {
+      font-size: 0.8rem;
+      color: rgba(244,240,232,0.4);
+      white-space: pre-line;
+    }
+
+    .campos-grupo { margin-bottom: 0; }
+    .col-2 { display: flex; gap: 12px; }
+    .col-2 .form-group { flex: 1; }
+
+    .pantallas-check-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    .pantalla-check-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border: 1.5px solid var(--border, #e2e8f0);
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: 600;
+      transition: all 0.2s;
+      user-select: none;
+    }
+    .pantalla-check-item input { display: none; }
+    .pantalla-check-item.checked { border-color: #6366f1; background: #eef2ff; color: #4338ca; }
+    .pantalla-check-item.offline { opacity: 0.4; pointer-events: none; }
+    .pantalla-check-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #94a3b8;
+    }
+    .pantalla-check-item.checked .pantalla-check-dot { background: #6366f1; }
+
+    .check-all-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .btn-check-all {
+      font-size: 0.75rem; padding: 4px 12px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ── SIDEBAR ──────────────────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-label">Visitor Display</div>
+      <div class="brand-title">Panel de Control</div>
+      <div class="brand-role">Recepcionista / Secretaria</div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Vistas</div>
+
+      <button id="nav-screens" class="nav-item active" onclick="navigateTo('screens')">
+        <span class="nav-icon">🖥️</span>
+        Pantallas
+        <span id="badge-screens" class="nav-badge">0</span>
+      </button>
+
+      <button id="nav-visits" class="nav-item" onclick="navigateTo('visits')">
+        <span class="nav-icon">📅</span>
+        Visitas
+        <span id="badge-visits" class="nav-badge">0</span>
+      </button>
+
+      <div class="nav-section-label">Acciones</div>
+
+      <button id="nav-send" class="nav-item" onclick="navigateTo('send')">
+        <span class="nav-icon">📨</span>
+        Enviar Bienvenida
+        <span id="badge-send" class="nav-badge">0</span>
+      </button>
+
+      <button id="nav-mensajes" class="nav-item" onclick="navigateTo('mensajes')">
+        <span class="nav-icon">✏️</span>
+        Mensaje Libre
+      </button>
+
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-clock" id="clock">00:00:00</div>
+      <div class="sidebar-date" id="date-label"></div>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ─────────────────────────────────────────────── -->
+  <main class="main">
+
+    <div class="topbar">
+      <div class="topbar-title" id="topbar-title">Pantallas</div>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost btn-sm" onclick="syncFromIdeeo()" id="sync-btn">
+          🔄 Sincronizar con ideeo
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="loadAll()">
+          ↺ Actualizar
+        </button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ── VIEW: SCREENS ──────────────────────────────── -->
+      <div id="view-screens" class="view active">
+        <div class="broadcast-bar">
+          <div class="broadcast-bar-info">
+            <strong>Control Global</strong>
+            Envía o limpia todas las pantallas a la vez
+          </div>
+          <div class="broadcast-bar-actions">
+            <button class="btn btn-broadcast btn-sm" onclick="navigateTo('send')">📨 Enviar a todas</button>
+            <button class="btn btn-clear-all btn-sm" onclick="clearAllScreens()">🧹 Limpiar todas</button>
+          </div>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-value" id="stat-total">—</div>
+            <div class="stat-label">Total pantallas</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-online" style="color:#16a34a">—</div>
+            <div class="stat-label">En línea</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-offline" style="color:#dc2626">—</div>
+            <div class="stat-label">Desconectadas</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-visits">—</div>
+            <div class="stat-label">Visitas hoy</div>
+          </div>
+        </div>
+
+        <div class="section-header">
+          <div><div class="section-title">Pantallas registradas</div></div>
+        </div>
+
+        <div id="screens-grid" class="screens-grid">
+          <div class="empty-state" style="grid-column:1/-1">
+            <div class="empty-state-icon">⏳</div>
+            <div class="empty-state-text">Cargando pantallas...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── VIEW: VISITS ────────────────────────────────── -->
+      <div id="view-visits" class="view">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Visitas programadas</div>
+            <div class="section-sub" id="visits-date"></div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-secondary btn-sm" onclick="syncFromIdeeo()">🔄 Sincronizar con ideeo</button>
+            <button class="btn btn-ghost btn-sm" onclick="loadVisits()">↺ Recargar</button>
+          </div>
+        </div>
+        <div id="visits-list" class="visits-list">
+          <div class="empty-state">
+            <div class="empty-state-icon">⏳</div>
+            <div class="empty-state-text">Cargando visitas...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── VIEW: SEND ──────────────────────────────────── -->
+      <div id="view-send" class="view">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Enviar bienvenida</div>
+            <div class="section-sub">Selecciona pantalla y visita</div>
+          </div>
+        </div>
+        <div class="card" style="padding:26px;max-width:500px">
+          <div class="form-group">
+            <label class="form-label">Pantalla destino</label>
+            <select id="send-screen-select" class="form-select">
+              <option value="">— Seleccionar pantalla —</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Visita a mostrar</label>
+            <select id="send-visit-select" class="form-select">
+              <option value="">— Seleccionar visita —</option>
+            </select>
+          </div>
+          <div class="send-hint">
+            💡 <strong>1 visitante</strong> → pantalla individual &nbsp;·&nbsp;
+            <strong>2 o más</strong> → pantalla de grupo con todos los nombres.
+          </div>
+          <div style="margin-top:18px;display:flex;gap:8px">
+            <button id="send-btn" class="btn btn-primary" onclick="sendGreeting()" style="flex:1">
+              📨 Enviar bienvenida
+            </button>
+            <button class="btn btn-secondary" onclick="navigateTo('screens')">Cancelar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── VIEW: MENSAJES ─────────────────────────────── -->
+      <div id="view-mensajes" class="view">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Mensaje libre</div>
+            <div class="section-sub">Crea y envía cualquier contenido a las pantallas</div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap">
+
+          <!-- Columna izquierda: formulario -->
+          <div class="card" style="padding:24px;flex:1;min-width:300px;max-width:520px">
+
+            <!-- Tipo de mensaje -->
+            <div class="form-group">
+              <label class="form-label">Tipo de mensaje</label>
+              <div class="msg-tipos">
+
+                <button class="msg-tipo-btn active" onclick="seleccionarTipo('bienvenida')" id="tipo-bienvenida">
+                  <span class="tipo-icon">👤</span>
+                  Bienvenida
+                </button>
+
+                <button class="msg-tipo-btn" onclick="seleccionarTipo('texto')" id="tipo-texto">
+                  <span class="tipo-icon">💬</span>
+                  Texto libre
+                </button>
+
+                <button class="msg-tipo-btn" onclick="seleccionarTipo('aviso')" id="tipo-aviso">
+                  <span class="tipo-icon">📢</span>
+                  Aviso
+                </button>
+
+                <button class="msg-tipo-btn" onclick="seleccionarTipo('limpiar')" id="tipo-limpiar">
+                  <span class="tipo-icon">🧹</span>
+                  Limpiar
+                </button>
+
+              </div>
+            </div>
+
+            <!-- Campos: Bienvenida -->
+            <div id="campos-bienvenida" class="campos-grupo">
+              <div class="col-2">
+                <div class="form-group">
+                  <label class="form-label">Nombre *</label>
+                  <input type="text" id="msg-nombre" class="form-select" placeholder="Ej: Carlos Pérez"
+                    oninput="actualizarPreview()">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Cargo / Rol</label>
+                  <input type="text" id="msg-cargo" class="form-select" placeholder="Ej: Director"
+                    oninput="actualizarPreview()">
+                </div>
+              </div>
+              <div class="col-2">
+                <div class="form-group">
+                  <label class="form-label">Empresa</label>
+                  <input type="text" id="msg-empresa" class="form-select" placeholder="Ej: Tech Corp"
+                    oninput="actualizarPreview()">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Visita a / Anfitrión</label>
+                  <input type="text" id="msg-anfitrion" class="form-select" placeholder="Ej: Ana López"
+                    oninput="actualizarPreview()">
+                </div>
+              </div>
+            </div>
+
+            <!-- Campos: Texto libre -->
+            <div id="campos-texto" class="campos-grupo" style="display:none">
+              <div class="form-group">
+                <label class="form-label">Título principal *</label>
+                <input type="text" id="msg-titulo" class="form-select" placeholder="Ej: Reunión en Sala A"
+                  oninput="actualizarPreview()">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Subtexto (opcional)</label>
+                <textarea id="msg-subtexto" class="form-select" rows="3"
+                  placeholder="Información adicional..." oninput="actualizarPreview()"
+                  style="resize:vertical;font-family:inherit"></textarea>
+              </div>
+            </div>
+
+            <!-- Campos: Aviso -->
+            <div id="campos-aviso" class="campos-grupo" style="display:none">
+              <div class="form-group">
+                <label class="form-label">Mensaje del aviso *</label>
+                <input type="text" id="msg-aviso-texto" class="form-select"
+                  placeholder="Ej: Por favor espere en recepción"
+                  oninput="actualizarPreview()">
+              </div>
+              <div class="col-2">
+                <div class="form-group">
+                  <label class="form-label">Ícono</label>
+                  <select id="msg-aviso-icono" class="form-select" onchange="actualizarPreview()">
+                    <option value="📢">📢 Aviso</option>
+                    <option value="⏳">⏳ Espera</option>
+                    <option value="☕">☕ Descanso</option>
+                    <option value="🔔">🔔 Atención</option>
+                    <option value="🚪">🚪 Acceso</option>
+                    <option value="📞">📞 Llamada</option>
+                    <option value="⚠️">⚠️ Importante</option>
+                    <option value="✅">✅ Listo</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Detalle (opcional)</label>
+                  <input type="text" id="msg-aviso-sub" class="form-select"
+                    placeholder="Más información..."
+                    oninput="actualizarPreview()">
+                </div>
+              </div>
+            </div>
+
+            <!-- Campos: Limpiar (sin campos) -->
+            <div id="campos-limpiar" class="campos-grupo" style="display:none">
+              <div class="send-hint" style="margin-bottom:0">
+                🧹 Limpiará el contenido de las pantallas seleccionadas y las pondrá en espera.
+              </div>
+            </div>
+
+            <hr style="border:none;border-top:1px solid var(--border,#e2e8f0);margin:20px 0">
+
+            <!-- Selección de pantallas -->
+            <div class="form-group" style="margin-bottom:0">
+              <label class="form-label">Enviar a</label>
+              <div class="check-all-row">
+                <button class="btn btn-ghost btn-sm btn-check-all" onclick="toggleTodas(true)">✓ Todas</button>
+                <button class="btn btn-ghost btn-sm btn-check-all" onclick="toggleTodas(false)">✗ Ninguna</button>
+              </div>
+              <div class="pantallas-check-grid" id="pantallas-check-grid">
+                <div style="color:var(--text-secondary,#94a3b8);font-size:0.85rem">
+                  No hay pantallas en línea
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-top:20px;display:flex;gap:8px">
+              <button id="msg-send-btn" class="btn btn-primary" onclick="enviarMensajeLibre()" style="flex:1">
+                📤 Enviar mensaje
+              </button>
+              <button class="btn btn-ghost" onclick="limpiarFormMensaje()">↺ Limpiar</button>
+            </div>
+
+          </div>
+
+          <!-- Columna derecha: preview -->
+          <div style="flex:1;min-width:260px;max-width:420px">
+            <div class="form-label" style="margin-bottom:10px">Vista previa</div>
+            <div class="preview-box" id="preview-box">
+              <div class="preview-label">PREVIEW</div>
+              <div id="preview-contenido">
+                <div style="color:rgba(244,240,232,0.2);font-size:0.9rem">
+                  Completa el formulario para ver la vista previa
+                </div>
+              </div>
+            </div>
+            <div style="font-size:0.75rem;color:var(--text-secondary,#94a3b8);text-align:center">
+              La pantalla mostrará el contenido centrado
+            </div>
+          </div>
+
+        </div>
+      </div><!-- /view-mensajes -->
+
+    </div><!-- /content -->
+  </main>
+</div><!-- /app -->
+
+<!-- ── ALERT CONTAINER ──────────────────────────────────────── -->
+<div id="alert-container"></div>
+
+<!-- ── MODAL: COLA ───────────────────────────────────────────── -->
+<div id="modal-queue" class="modal-overlay" onclick="if(event.target===this)closeQueueModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="queue-modal-title">Cola de mensajes</div>
+      <div class="modal-sub" id="queue-modal-screenid"></div>
+    </div>
+    <div class="modal-body" id="queue-list"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost btn-sm" onclick="closeQueueModal()">Cerrar</button>
+      <button class="btn btn-primary btn-sm" onclick="saveAndCloseQueue()">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: RECONEXIÓN ─────────────────────────────────────── -->
+<div id="modal-reconnect" class="modal-overlay">
+  <div class="modal" style="max-width:400px">
+    <div class="reconnect-body">
+      <div class="reconnect-icon">🔌</div>
+      <div class="reconnect-title">Pantalla reconectada</div>
+      <div class="reconnect-desc">
+        <strong id="reconnect-screen-name"></strong> volvió a conectarse.<br>
+        Hay <strong id="reconnect-queue-count"></strong> mensaje(s) pendiente(s) en la cola.<br><br>
+        ¿Deseas enviarlos tal como estaban o revisarlos primero?
+      </div>
+    </div>
+    <div class="modal-footer" style="justify-content:center;gap:10px">
+      <button id="reconnect-review-btn" class="btn btn-secondary">📋 Revisar cola</button>
+      <button id="reconnect-send-btn" class="btn btn-primary">📨 Enviar ahora</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── TOAST CONTAINER ──────────────────────────────────────── -->
+<div id="toast-container" class="toast-container"></div>
+
+<!-- ── SCRIPTS ──────────────────────────────────────────────── -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/mock.js"></script>
+<script src="js/api.js"></script>
+<script src="js/signalrPanel.js"></script>
+<script src="js/mensajes.js"></script>
+<script src="js/app.js"></script>
+<script>
+  document.getElementById("visits-date").textContent =
+    new Date().toLocaleDateString("es-MX", { weekday:"long", day:"numeric", month:"long", year:"numeric" });
+</script>
+
+</body>
+</html>
