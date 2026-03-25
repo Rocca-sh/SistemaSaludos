@@ -78,3 +78,4 @@ C:\Users\roberto\Documents\SistemaSaludos\obj\Debug\net8.0\refint\PantallasIdeo.
 C:\Users\roberto\Documents\SistemaSaludos\obj\Debug\net8.0\PantallasIdeo.pdb
 C:\Users\roberto\Documents\SistemaSaludos\obj\Debug\net8.0\PantallasIdeo.genruntimeconfig.cache
 C:\Users\roberto\Documents\SistemaSaludos\obj\Debug\net8.0\ref\PantallasIdeo.dll
+C:\Users\roberto\Documents\SistemaSaludos\bin\Debug\net8.0\greetings.json

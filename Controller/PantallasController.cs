@@ -81,6 +81,15 @@ public class PantallasController : ControllerBase
         pantalla.queue = req.queue ?? new List<QueueItem>();
         return Ok(new { ok = true });
     }
+
+    // DELETE /api/pantallas/{id}
+    [HttpDelete("{id}")]
+    public IActionResult Delete(string id)
+    {
+        if (_service.Pantallas.TryRemove(id, out _))
+            return Ok(new { ok = true });
+        return NotFound(new { error = $"Pantalla '{id}' no encontrada" });
+    }
 }
 
 // ── DTOs ─────────────────────────────────────────────────────

@@ -107,6 +107,20 @@ app.MapPost("/api/greetings", async (HttpContext ctx) =>
     return Results.Ok(list);
 });
 
+app.MapDelete("/api/greetings/{index:int}", (int index) =>
+{
+    var path = Path.Combine(builder.Environment.ContentRootPath, "greetings.json");
+    if (!System.IO.File.Exists(path)) return Results.NotFound();
+    var list = System.Text.Json.JsonSerializer.Deserialize<System.Collections.Generic.List<string>>(System.IO.File.ReadAllText(path));
+    if (list != null && index >= 0 && index < list.Count)
+    {
+        list.RemoveAt(index);
+        System.IO.File.WriteAllText(path, System.Text.Json.JsonSerializer.Serialize(list));
+        return Results.Ok(list);
+    }
+    return Results.BadRequest(new { error = "Índice inválido" });
+});
+
 app.MapControllers();
 app.MapHub<HubPantalla>("/hub");
 
