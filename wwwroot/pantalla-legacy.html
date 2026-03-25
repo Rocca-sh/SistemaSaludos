@@ -258,14 +258,13 @@
 
   <div id="main">
 
-    <!-- ── LOGO REMOVED FROM HERE ── -->
+    <!-- ── LOGO GLOBAL / FIJO ARRIBA ── -->
+    <img src="/logo/png-transparent-autozone-logo-icons-logos-emojis-car-logos.png" alt="AutoZone Logo" class="global-logo" style="margin-top: 10px; margin-bottom: 20px;">
 
-    <!-- ── IDLE / ESPERA (AutoZone Dynamic) ── -->
+    <!-- ── IDLE / ESPERA (Fijo, controlado por servidor) ── -->
     <div id="screen-idle" class="screen-wrapper">
       <div class="idle-saludo" id="idle-saludo-texto">¡Bienvenidos!</div>
       <div class="idle-sub">Descubre lo Mejor</div>
-      <!-- ── LOGO GLOBAL / PERMANENTE ── -->
-      <img src="/logo/png-transparent-autozone-logo-icons-logos-emojis-car-logos.png" alt="AutoZone Logo" class="global-logo" style="margin-top: 30px; margin-bottom: 0;">
     </div>
 
     <!-- ── PANTALLA MENSAJE PRINCIPAL ── -->
@@ -311,75 +310,24 @@
     })();
 
     // ════════════════════════════════════════════════
-    //  1. GENERACIÓN DE MENSAJERÍA DINÁMICA (Carga SERVIDOR)
-    // ════════════════════════════════════════════════
-    var mensajesRegionales = ["Descubriendo AutoZone..."];
-
-    function cargarSaludosDelServidor() {
-      try {
-        var xhr = new XMLHttpRequest();
-        xhr.open("GET", SERVER_URL + "/api/greetings", true);
-        xhr.onreadystatechange = function () {
-          if (xhr.readyState === 4 && xhr.status === 200) {
-            try {
-              var parseado = JSON.parse(xhr.responseText);
-              if (parseado && parseado.length > 0) mensajesRegionales = parseado;
-            } catch(e) {}
-          }
-        };
-        xhr.send();
-      } catch(e) {}
-    }
-
-    cargarSaludosDelServidor();
-    setInterval(cargarSaludosDelServidor, 30000); // Sincroniza cada 30 seg
-
-    // ════════════════════════════════════════════════
-    //  2. LÓGICA DE GUARDADO / SELECCIÓN DE SALUDO
+    //  1. GESTIÓN DE SALUDO (NO AUTOMÁTICO, SOLO SERVIDOR)
     // ════════════════════════════════════════════════
     var gestorSaludos = {
-      saludoActivo: "",
+      saludoActivo: "¡Bienvenidos a AutoZone!",
       historial: [],
-      // Función sencilla requerida (compatible nativa)
-      guardarSaludoParaEnvio: function(saludoTexto) {
+      // Se utiliza para actualizar de forma manual vía SignalR si se manda
+      actualizarSaludoFijo: function(saludoTexto) {
         this.saludoActivo = saludoTexto;
-        var infoSaludo = {
-          texto: saludoTexto,
-          fecha: new Date().getTime(),
-          pantalla: SCREEN_NAME
-        };
-        
-        this.historial.push(infoSaludo);
-        
-        // (Preparación) Aquí enviaríamos al servidor, sea por AJAX o WebSocket
-        // Ejemplo genérico si quisiéramos inyectarlo por signalR:
-        // invocar("ReportarSaludoEnPantalla", [infoSaludo]);
+        var textoEl = document.getElementById("idle-saludo-texto");
+        if(textoEl) {
+          textoEl.style.opacity = 0;
+          setTimeout(function(){
+            textoEl.textContent = saludoTexto;
+            textoEl.style.opacity = 1;
+          }, 300);
+        }
       }
     };
-
-    function rotarSaludoRegional() {
-      if(document.getElementById("screen-idle").style.display === "none") return;
-      
-      var rnd = Math.floor(Math.random() * mensajesRegionales.length);
-      var nuevo = mensajesRegionales[rnd];
-      
-      var textoEl = document.getElementById("idle-saludo-texto");
-      if(textoEl) {
-        // Pequeño guiño de opacidad (amigable y sin keyframes pesados)
-        textoEl.style.opacity = 0;
-        setTimeout(function(){
-          textoEl.textContent = nuevo;
-          textoEl.style.opacity = 1;
-        }, 300);
-      }
-
-      // Guardamos la iteración validando el requerimiento del sistema
-      gestorSaludos.guardarSaludoParaEnvio(nuevo);
-    }
-    
-    // Rota saludo cada 12 segundos
-    setInterval(rotarSaludoRegional, 12000);
-    rotarSaludoRegional();
 
     // ════════════════════════════════════════════════
     //  3. DISPLAY Y PANTALLAS (LEGACY COMPATIBLE)
