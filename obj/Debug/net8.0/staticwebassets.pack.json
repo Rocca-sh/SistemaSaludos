@@ -1,0 +1,61 @@
+{
+  "Files": [
+    {
+      "Id": "/home/rocca/files/SistemaSaludos/wwwroot/css/styles.css",
+      "PackagePath": "staticwebassets/css/styles.css"
+    },
+    {
+      "Id": "/home/rocca/files/SistemaSaludos/wwwroot/index.html",
+      "PackagePath": "staticwebassets/index.html"
+    },
+    {
+      "Id": "/home/rocca/files/SistemaSaludos/wwwroot/js/api.js",
+      "PackagePath": "staticwebassets/js/api.js"
+    },
+    {
+      "Id": "/home/rocca/files/SistemaSaludos/wwwroot/js/app.js",
+      "PackagePath": "staticwebassets/js/app.js"
+    },
+    {
+      "Id": "/home/rocca/files/SistemaSaludos/wwwroot/js/config.js",
+      "PackagePath": "staticwebassets/js/config.js"
+    },
+    {
+      "Id": "/home/rocca/files/SistemaSaludos/wwwroot/js/mensajes.js",
+      "PackagePath": "staticwebassets/js/mensajes.js"
+    },
+    {
+      "Id": "/home/rocca/files/SistemaSaludos/wwwroot/js/mock.js",
+      "PackagePath": "staticwebassets/js/mock.js"
+    },
+    {
+      "Id": "/home/rocca/files/SistemaSaludos/wwwroot/js/signalrPanel.js",
+      "PackagePath": "staticwebassets/js/signalrPanel.js"
+    },
+    {
+      "Id": "/home/rocca/files/SistemaSaludos/wwwroot/pantalla-android.html",
+      "PackagePath": "staticwebassets/pantalla-android.html"
+    },
+    {
+      "Id": "/home/rocca/files/SistemaSaludos/wwwroot/pantalla-legacy.html",
+      "PackagePath": "staticwebassets/pantalla-legacy.html"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.PantallasIdeo.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.build.PantallasIdeo.props",
+      "PackagePath": "build\\PantallasIdeo.props"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.buildMultiTargeting.PantallasIdeo.props",
+      "PackagePath": "buildMultiTargeting\\PantallasIdeo.props"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.buildTransitive.PantallasIdeo.props",
+      "PackagePath": "buildTransitive\\PantallasIdeo.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

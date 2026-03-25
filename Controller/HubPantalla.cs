@@ -1,57 +1,58 @@
 namespace SistemaSaludos.Controller.HubPantalla;
 
-using System.Collections.Concurrent;
 using Microsoft.AspNetCore.SignalR;
 using SistemaSaludos.Modelo.Pantalla;
+using SistemaSaludos.Service;
 
-public  class HubPantalla : Hub
+public class HubPantalla : Hub
 {
-    public static readonly ConcurrentDictionary<string , Pantalla> Pantallas = new ();
+    private readonly PantallaService _service;
+
+    public HubPantalla(PantallaService service)
+    {
+        _service = service;
+    }
+
+    // La pantalla llama esto al conectarse para registrarse con un nombre
     public async Task<Pantalla> RegistrarPantalla(string nombre)
     {
         string id = Context.ConnectionId;
-        Pantalla pantalla = new Pantalla(id, nombre);
 
-        Pantallas[id] = pantalla;
-        Console.WriteLine($"Pantalla conectada: {nombre}");
+        var pantalla = new Pantalla(id, nombre) { state = true };
+        _service.Pantallas[id] = pantalla;
+
+        Console.WriteLine($"[HUB] Pantalla conectada: {nombre} ({id[..8]}...)");
+
         await Clients.Caller.SendAsync("Registrada", nombre);
-
         return pantalla;
     }
 
-    public async Task EnviarAPantalla(string id, string json)
+    // El panel recepcionista se une a su grupo para recibir ACKs
+    public async Task JoinReceptionist()
     {
-        if (!Pantallas.TryGetValue(id, out var pantalla))
-        {
-            Console.WriteLine($" No se encontró pantalla con id: {id}");
-            return;
-        }
-    
-        if (pantalla.state == false)
-        {
-            Console.WriteLine($"La pantalla '{pantalla.name}' está desconectada");
-            return;
-        }
-
-        await Clients.Client(pantalla.idSig).SendAsync("ActualizarInfo", json);
-        Console.WriteLine($"JSON enviado a '{pantalla.name}'");
+        await Groups.AddToGroupAsync(Context.ConnectionId, "receptionist");
+        Console.WriteLine($"[HUB] Panel recepcionista conectado ({Context.ConnectionId[..8]}...)");
     }
 
-    public async Task EnviarATodas(string json)
+    // La pantalla confirma que recibió el mensaje
+    public async Task AcknowledgeMessage(string messageId)
     {
-        await Clients.All.SendAsync("ActualizarInfo", json);
+        string id = Context.ConnectionId;
+        Console.WriteLine($"[HUB] ACK de '{id[..8]}' para mensaje '{messageId}'");
+        await Clients.Group("receptionist").SendAsync("MessageAcknowledged", id, messageId);
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
-        if (Pantallas.TryGetValue(Context.ConnectionId, out var pantalla))
-        {
-            pantalla.state  = false;
-            pantalla.lastcon = DateTime.Now;
+        string id = Context.ConnectionId;
 
-            Console.WriteLine($"Pantalla desconectada: {pantalla.name} a las {pantalla.lastcon:HH:mm:ss}");
+        if (_service.Pantallas.TryGetValue(id, out var pantalla))
+        {
+            pantalla.state   = false;
+            pantalla.lastcon = DateTime.Now;
+            Console.WriteLine($"[HUB] Pantalla desconectada: {pantalla.name} a las {pantalla.lastcon:HH:mm:ss}");
         }
+
         await base.OnDisconnectedAsync(exception);
     }
-
 }

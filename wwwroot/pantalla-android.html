@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Pantalla de Bienvenida</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Outfit:wght@300;400;600&display=swap');
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    html, body {
+      width:100%; height:100%;
+      background: #0a0f1e;
+      font-family: 'Outfit', sans-serif;
+      color: #f4f0e8;
+      overflow: hidden;
+    }
+
+    body::before {
+      content:'';
+      position:fixed;
+      top:0; left:0; right:0; bottom:0;
+      background:
+        radial-gradient(ellipse 60% 40% at 20% 80%, rgba(30,58,95,0.45) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 30% at 80% 20%, rgba(201,168,76,0.08) 0%, transparent 60%);
+      pointer-events:none;
+      z-index:0;
+    }
+
+    .orb {
+      position:fixed;
+      border-radius:50%;
+      -webkit-filter:blur(80px);
+      filter:blur(80px);
+      pointer-events:none;
+      opacity:0.18;
+      -webkit-animation: drift 18s ease-in-out infinite alternate;
+      animation: drift 18s ease-in-out infinite alternate;
+      z-index:0;
+    }
+    .orb1 { width:500px; height:500px; background:#1e3a5f; top:-100px; left:-100px; -webkit-animation-duration:20s; animation-duration:20s; }
+    .orb2 { width:400px; height:400px; background:#0a2240; bottom:-80px; right:-80px; -webkit-animation-duration:25s; animation-duration:25s; -webkit-animation-delay:-8s; animation-delay:-8s; }
+    .orb3 { width:200px; height:200px; background:rgba(201,168,76,0.3); top:40%; right:10%; -webkit-animation-duration:15s; animation-duration:15s; }
+    @-webkit-keyframes drift { from{-webkit-transform:translate(0,0);} to{-webkit-transform:translate(30px,40px);} }
+    @keyframes drift         { from{transform:translate(0,0);}          to{transform:translate(30px,40px);} }
+
+    .top-bar {
+      position:fixed; top:0; left:0; right:0; height:4px;
+      background: linear-gradient(90deg, transparent, #c9a84c, transparent);
+      z-index:10;
+    }
+
+    .header {
+      position:fixed; top:0; left:0; right:0;
+      display:-webkit-box; display:-webkit-flex; display:flex;
+      -webkit-box-align:center; -webkit-align-items:center; align-items:center;
+      -webkit-box-pack:justify; -webkit-justify-content:space-between; justify-content:space-between;
+      padding:20px 40px;
+      background: linear-gradient(to bottom, rgba(10,15,30,0.95), transparent);
+      z-index:9;
+    }
+    .header-brand {
+      display:-webkit-box; display:-webkit-flex; display:flex;
+      -webkit-box-align:center; -webkit-align-items:center; align-items:center;
+    }
+    .header-diamond {
+      width:32px; height:32px;
+      background: linear-gradient(135deg, #c9a84c, #e8c97a);
+      -webkit-clip-path: polygon(50% 0%,100% 50%,50% 100%,0% 50%);
+      clip-path: polygon(50% 0%,100% 50%,50% 100%,0% 50%);
+      margin-right:12px;
+      -webkit-flex-shrink:0; flex-shrink:0;
+    }
+    .header-name {
+      font-family:'Playfair Display',serif;
+      font-size:1.1rem; font-weight:700;
+      color:#c9a84c;
+      letter-spacing:0.08em;
+      text-transform:uppercase;
+    }
+    .header-clock {
+      font-size:1.1rem; font-weight:300;
+      color:rgba(244,240,232,0.55);
+      letter-spacing:0.15em;
+    }
+
+    /* Badge — sin backdrop-filter, no soportado en Android 7 */
+    .conn-badge {
+      position:fixed; top:22px; left:50%;
+      -webkit-transform:translateX(-50%); transform:translateX(-50%);
+      display:-webkit-box; display:-webkit-flex; display:flex;
+      -webkit-box-align:center; -webkit-align-items:center; align-items:center;
+      padding:5px 16px;
+      border-radius:20px;
+      border:1px solid rgba(255,255,255,0.1);
+      background:rgba(10,15,30,0.9);
+      font-size:0.75rem; font-weight:600;
+      letter-spacing:0.1em; text-transform:uppercase;
+      -webkit-transition:all 0.4s; transition:all 0.4s;
+      z-index:20;
+    }
+    .conn-dot {
+      width:8px; height:8px; border-radius:50%;
+      margin-right:8px;
+      -webkit-flex-shrink:0; flex-shrink:0;
+      -webkit-transition:background 0.4s; transition:background 0.4s;
+    }
+    .conn-badge.connecting .conn-dot { background:#f59e0b; -webkit-animation:pulse-dot 1s infinite; animation:pulse-dot 1s infinite; }
+    .conn-badge.connected  .conn-dot { background:#4caf87; }
+    .conn-badge.error      .conn-dot { background:#e05252; }
+    @-webkit-keyframes pulse-dot { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+    @keyframes pulse-dot         { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+    #main {
+      position:fixed;
+      top:0; left:0; right:0; bottom:0;
+      display:-webkit-box; display:-webkit-flex; display:flex;
+      -webkit-box-align:center; -webkit-align-items:center; align-items:center;
+      -webkit-box-pack:center; -webkit-justify-content:center; justify-content:center;
+      padding:100px 60px 60px;
+      z-index:1;
+    }
+
+    /* IDLE */
+    #screen-idle {
+      display:-webkit-box; display:-webkit-flex; display:flex;
+      -webkit-box-orient:vertical; -webkit-box-direction:normal;
+      -webkit-flex-direction:column; flex-direction:column;
+      -webkit-box-align:center; -webkit-align-items:center; align-items:center;
+      -webkit-box-pack:center; -webkit-justify-content:center; justify-content:center;
+      text-align:center;
+      -webkit-animation:fadeIn 1s ease; animation:fadeIn 1s ease;
+    }
+    .idle-symbol {
+      font-size:5rem; opacity:0.3;
+      margin-bottom:24px;
+      -webkit-animation:float 4s ease-in-out infinite; animation:float 4s ease-in-out infinite;
+    }
+    @-webkit-keyframes float { 0%,100%{-webkit-transform:translateY(0);} 50%{-webkit-transform:translateY(-12px);} }
+    @keyframes float         { 0%,100%{transform:translateY(0);}  50%{transform:translateY(-12px);} }
+    .idle-title {
+      font-family:'Playfair Display',serif;
+      font-size:2.5rem; color:rgba(244,240,232,0.55);
+      font-weight:400; margin-bottom:12px;
+    }
+    .idle-sub {
+      font-size:0.9rem; color:rgba(244,240,232,0.3);
+      letter-spacing:0.1em; text-transform:uppercase;
+    }
+
+    /* MENSAJE */
+    #screen-message {
+      display:none;
+      -webkit-box-orient:vertical; -webkit-box-direction:normal;
+      -webkit-flex-direction:column; flex-direction:column;
+      -webkit-box-align:center; -webkit-align-items:center; align-items:center;
+      text-align:center; width:100%; max-width:900px;
+    }
+    @-webkit-keyframes revealMsg { from{opacity:0;-webkit-transform:translateY(40px);} to{opacity:1;-webkit-transform:translateY(0);} }
+    @keyframes revealMsg         { from{opacity:0;transform:translateY(40px);}          to{opacity:1;transform:translateY(0);} }
+
+    .msg-line {
+      width:60px; height:2px;
+      background:linear-gradient(90deg,transparent,#c9a84c,transparent);
+      margin-bottom:32px;
+    }
+    .msg-welcome {
+      font-size:0.95rem; font-weight:600;
+      letter-spacing:0.35em; text-transform:uppercase;
+      color:#c9a84c; margin-bottom:16px;
+    }
+    .msg-names {
+      font-family:'Playfair Display',serif;
+      font-size:5rem; font-weight:900; line-height:1.05;
+      margin-bottom:24px;
+      color:#e8c97a; /* fallback sólido para Android 7 */
+      word-break:break-word; white-space:pre-line;
+    }
+    /* Gradiente en texto solo si el navegador lo soporta */
+    @supports (-webkit-background-clip: text) or (background-clip: text) {
+      .msg-names {
+        background: linear-gradient(135deg, #f4f0e8 0%, #e8c97a 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+    }
+    .msg-role {
+      font-size:1.1rem; font-weight:300;
+      color:rgba(244,240,232,0.55);
+      letter-spacing:0.08em; margin-bottom:32px;
+    }
+    .msg-company-block {
+      display:-webkit-box; display:-webkit-flex; display:flex;
+      -webkit-box-align:center; -webkit-align-items:center; align-items:center;
+      padding:12px 28px;
+      border:1px solid rgba(201,168,76,0.15);
+      border-radius:4px;
+      background:rgba(201,168,76,0.12);
+      margin-bottom:32px;
+    }
+    .msg-company-logo {
+      width:40px; height:40px; object-fit:contain;
+      border-radius:4px; margin-right:16px;
+    }
+    .msg-company-name {
+      font-size:1.2rem; font-weight:600;
+      color:#e8c97a; letter-spacing:0.05em;
+    }
+    .msg-visiting {
+      font-size:0.85rem; font-weight:300;
+      color:rgba(244,240,232,0.4);
+      letter-spacing:0.1em; text-transform:uppercase;
+    }
+    .msg-host {
+      font-size:1.1rem; font-weight:600;
+      color:rgba(244,240,232,0.55);
+      letter-spacing:0.04em; margin-top:4px;
+    }
+
+    /* CLEAR */
+    #screen-clear { display:none; text-align:center; }
+    .clear-icon  { font-size:3rem; opacity:0.4; margin-bottom:16px; }
+    .clear-text  {
+      font-family:'Playfair Display',serif;
+      font-size:1.8rem; font-weight:400;
+      color:rgba(244,240,232,0.55);
+    }
+
+    .footer {
+      position:fixed; bottom:0; left:0; right:0; height:3px;
+      background:linear-gradient(90deg, transparent, rgba(201,168,76,0.15), transparent);
+      z-index:5;
+    }
+    .footer-date {
+      position:fixed; bottom:16px; left:50%;
+      -webkit-transform:translateX(-50%); transform:translateX(-50%);
+      font-size:0.75rem; color:rgba(244,240,232,0.2);
+      letter-spacing:0.15em; text-transform:uppercase;
+      white-space:nowrap; z-index:5;
+    }
+    .screen-name-label {
+      position:fixed; bottom:40px; right:24px;
+      font-size:0.65rem; letter-spacing:0.2em;
+      text-transform:uppercase; color:rgba(244,240,232,0.15); z-index:5;
+    }
+
+    @-webkit-keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+    @keyframes fadeIn         { from{opacity:0;} to{opacity:1;} }
+  </style>
+</head>
+<body>
+
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+  <div class="top-bar"></div>
+
+  <header class="header">
+    <div class="header-brand">
+      <div class="header-diamond"></div>
+      <div class="header-name" id="company-label">Bienvenidos</div>
+    </div>
+    <div class="header-clock" id="clock">00:00</div>
+  </header>
+
+  <div class="conn-badge connecting" id="conn-badge">
+    <div class="conn-dot"></div>
+    <span id="conn-text">Conectando...</span>
+  </div>
+
+  <div id="main">
+
+    <div id="screen-idle">
+      <div class="idle-symbol">&#9671;</div>
+      <div class="idle-title">Esperando visitantes</div>
+      <div class="idle-sub">Sistema activo</div>
+    </div>
+
+    <div id="screen-message">
+      <div class="msg-line"></div>
+      <div class="msg-welcome">Bienvenido</div>
+      <div class="msg-names" id="msg-names"></div>
+      <div class="msg-role"  id="msg-role"></div>
+      <div class="msg-company-block" id="msg-company-block" style="display:none">
+        <img class="msg-company-logo" id="msg-company-logo" src="" alt="" style="display:none">
+        <div class="msg-company-name" id="msg-company-name"></div>
+      </div>
+      <div class="msg-visiting">Visita a</div>
+      <div class="msg-host" id="msg-host"></div>
+    </div>
+
+    <div id="screen-clear">
+      <div class="clear-icon">&#10003;</div>
+      <div class="clear-text">Pantalla lista</div>
+    </div>
+
+  </div>
+
+  <div class="footer"></div>
+  <div class="footer-date" id="footer-date"></div>
+  <div class="screen-name-label" id="screen-name-label"></div>
+
+<script>
+// ── CONFIGURACIÓN ─────────────────────────────────────────────
+// DESPUÉS — el nombre se toma de la URL: /pantalla?nombre=Sala1
+var CONFIG = {
+  SERVER_URL:  window.location.origin,
+  SCREEN_NAME: (new URLSearchParams(window.location.search)).get("nombre") || "Pantalla",
+};
+
+// ── RELOJ ─────────────────────────────────────────────────────
+function startClock() {
+  function tick() {
+    var now = new Date();
+    document.getElementById("clock").textContent =
+      now.toLocaleTimeString("es-MX", { hour:"2-digit", minute:"2-digit" });
+    document.getElementById("footer-date").textContent =
+      now.toLocaleDateString("es-MX", { weekday:"long", day:"numeric", month:"long", year:"numeric" });
+  }
+  tick();
+  setInterval(tick, 1000);
+}
+
+// ── PANTALLAS ─────────────────────────────────────────────────
+function showScreen(name) {
+  var idle    = document.getElementById("screen-idle");
+  var message = document.getElementById("screen-message");
+  var clear   = document.getElementById("screen-clear");
+
+  // Ocultar todos
+  idle.style.display    = "none";
+  message.style.display = "none";
+  clear.style.display   = "none";
+
+  if (name === "idle") {
+    idle.style.display = "-webkit-flex";
+    idle.style.display = "flex";
+    idle.style.webkitAnimation = "none";
+    idle.style.animation = "none";
+    // forzar reflow
+    void idle.offsetWidth;
+    idle.style.webkitAnimation = "fadeIn 1s ease";
+    idle.style.animation       = "fadeIn 1s ease";
+  } else if (name === "message") {
+    message.style.display = "-webkit-flex";
+    message.style.display = "flex";
+    message.style.webkitAnimation = "none";
+    message.style.animation = "none";
+    void message.offsetWidth;
+    message.style.webkitAnimation = "revealMsg 0.8s ease-out";
+    message.style.animation       = "revealMsg 0.8s ease-out";
+  } else if (name === "clear") {
+    clear.style.display = "-webkit-flex";
+    clear.style.display = "flex";
+    clear.style.webkitAnimation = "none";
+    clear.style.animation = "none";
+    void clear.offsetWidth;
+    clear.style.webkitAnimation = "fadeIn 0.6s ease";
+    clear.style.animation       = "fadeIn 0.6s ease";
+  }
+}
+
+function setConnStatus(status, text) {
+  var badge = document.getElementById("conn-badge");
+  badge.className = "conn-badge " + status;
+  document.getElementById("conn-text").textContent = text;
+}
+
+// ── PROCESAR MENSAJE ──────────────────────────────────────────
+function handleMessage(json) {
+  var data;
+  try { data = typeof json === "string" ? JSON.parse(json) : json; }
+  catch(e) { console.error("JSON invalido:", json); return; }
+
+  var type    = data.type;
+  var payload = data.payload;
+
+  if (type === "limpiar") {
+    showScreen("clear");
+    setTimeout(function() { showScreen("idle"); }, 3000);
+    return;
+  }
+
+  if (type === "saludoVisitante" || type === "saludoGrupo") {
+    renderGreeting(payload, type);
+    return;
+  }
+
+  showScreen("idle");
+}
+
+function renderGreeting(payload, type) {
+  if (!payload) return;
+
+  // Nombres
+  var namesText = "";
+  if (type === "saludoGrupo" && Array.isArray(payload.visitantes)) {
+    var nombres = [];
+    for (var i = 0; i < payload.visitantes.length; i++) {
+      var v = payload.visitantes[i];
+      nombres.push(v.nombre || v.name || String(v));
+    }
+    namesText = nombres.join("\n");
+  } else {
+    namesText = payload.nombre || payload.name || payload.visitante || "Visitante";
+  }
+
+  var namesEl = document.getElementById("msg-names");
+  namesEl.textContent = namesText;
+
+  // Ajuste de tamaño según número de líneas
+  var lines = namesText.split("\n").length;
+  if      (lines >= 4) namesEl.style.fontSize = "2.5rem";
+  else if (lines >= 3) namesEl.style.fontSize = "3rem";
+  else if (lines >= 2) namesEl.style.fontSize = "3.8rem";
+  else                 namesEl.style.fontSize = "5rem";
+
+  // Rol / cargo
+  document.getElementById("msg-role").textContent =
+    payload.cargo || payload.role || payload.puesto || "";
+
+  // Empresa
+  var company = payload.empresa || payload.company || "";
+  var logo    = payload.logo    || payload.logoUrl  || "";
+  var companyBlock = document.getElementById("msg-company-block");
+  if (company) {
+    document.getElementById("msg-company-name").textContent = company;
+    var logoImg = document.getElementById("msg-company-logo");
+    if (logo) { logoImg.src = logo; logoImg.style.display = "inline-block"; }
+    else       { logoImg.style.display = "none"; }
+    companyBlock.style.display = "-webkit-flex";
+    companyBlock.style.display = "flex";
+  } else {
+    companyBlock.style.display = "none";
+  }
+
+  // Anfitrión
+  document.getElementById("msg-host").textContent =
+    payload.anfitrion || payload.host || payload.para || "";
+
+  showScreen("message");
+}
+
+// ── SIGNALR ───────────────────────────────────────────────────
+var connection = null;
+
+function connect() {
+  setConnStatus("connecting", "Conectando...");
+
+  connection = new signalR.HubConnectionBuilder()
+    .withUrl(CONFIG.SERVER_URL + "/hub")
+    .withAutomaticReconnect([2000, 5000, 10000, 30000])
+    .configureLogging(signalR.LogLevel.Warning)
+    .build();
+
+  connection.on("ActualizarInfo", function(json) {
+    handleMessage(json);
+  });
+
+  connection.on("Registrada", function(nombre) {
+    document.getElementById("screen-name-label").textContent = nombre;
+    document.getElementById("company-label").textContent     = nombre || "Bienvenidos";
+  });
+
+  connection.onreconnecting(function() {
+    setConnStatus("connecting", "Reconectando...");
+  });
+
+  connection.onreconnected(function() {
+    setConnStatus("connected", "Conectado");
+    registerScreen();
+  });
+
+  connection.onclose(function() {
+    setConnStatus("error", "Desconectado");
+    setTimeout(connect, 3000);
+  });
+
+  connection.start()
+    .then(function() {
+      setConnStatus("connected", "Conectado");
+      registerScreen();
+    })
+    .catch(function(err) {
+      console.error("Error al conectar:", err);
+      setConnStatus("error", "Error — reintentando...");
+      setTimeout(connect, 3000);
+    });
+}
+
+function registerScreen() {
+  connection.invoke("RegistrarPantalla", CONFIG.SCREEN_NAME)
+    .catch(function(e) { console.error("Error al registrar:", e); });
+}
+
+// ── INICIO ────────────────────────────────────────────────────
+startClock();
+showScreen("idle");
+connect();
+</script>
+</body>
+</html>
