@@ -35,10 +35,14 @@ app.UseCors();
 app.UseStaticFiles(); // sirve wwwroot/ (css, js, imágenes, etc.)
 
 // Mapea la carpeta original "logo" para que sea accesible públicamente en la URL /logo/...
+var logoPath = Path.Combine(builder.Environment.ContentRootPath, "logo");
+if (!System.IO.Directory.Exists(logoPath))
+{
+    System.IO.Directory.CreateDirectory(logoPath);
+}
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(
-        Path.Combine(builder.Environment.ContentRootPath, "logo")),
+    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(logoPath),
     RequestPath = "/logo"
 });
 
@@ -123,5 +127,21 @@ app.MapDelete("/api/greetings/{index:int}", (int index) =>
 
 app.MapControllers();
 app.MapHub<HubPantalla>("/hub");
+app.Lifetime.ApplicationStarted.Register(() =>
+{
+    var url = "http://localhost:5000/panel";
+    try
+    {
+        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+        {
+            FileName = url,
+            UseShellExecute = true
+        });
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error al abrir el navegador: {ex.Message}");
+    }
+});
 
 app.Run();

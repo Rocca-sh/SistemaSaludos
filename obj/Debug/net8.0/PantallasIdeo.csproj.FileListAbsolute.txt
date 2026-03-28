@@ -39,7 +39,6 @@ C:\Users\roberto\Documents\SistemaSaludos\bin\Debug\net8.0\appsettings.json
 C:\Users\roberto\Documents\SistemaSaludos\bin\Debug\net8.0\publicado\web.config
 C:\Users\roberto\Documents\SistemaSaludos\bin\Debug\net8.0\publicado\appsettings.Development.json
 C:\Users\roberto\Documents\SistemaSaludos\bin\Debug\net8.0\publicado\appsettings.json
-C:\Users\roberto\Documents\SistemaSaludos\bin\Debug\net8.0\publicado\SistemaSaludos.staticwebassets.endpoints.json
 C:\Users\roberto\Documents\SistemaSaludos\bin\Debug\net8.0\PantallasIdeo.staticwebassets.runtime.json
 C:\Users\roberto\Documents\SistemaSaludos\bin\Debug\net8.0\PantallasIdeo.staticwebassets.endpoints.json
 C:\Users\roberto\Documents\SistemaSaludos\bin\Debug\net8.0\PantallasIdeo.exe
@@ -79,3 +78,7 @@ C:\Users\roberto\Documents\SistemaSaludos\obj\Debug\net8.0\PantallasIdeo.pdb
 C:\Users\roberto\Documents\SistemaSaludos\obj\Debug\net8.0\PantallasIdeo.genruntimeconfig.cache
 C:\Users\roberto\Documents\SistemaSaludos\obj\Debug\net8.0\ref\PantallasIdeo.dll
 C:\Users\roberto\Documents\SistemaSaludos\bin\Debug\net8.0\greetings.json
+C:\Users\roberto\Documents\SistemaSaludos\bin\Debug\net8.0\publicado\greetings.json
+C:\Users\roberto\Documents\SistemaSaludos\bin\Debug\net8.0\publicado\PantallasIdeo.deps.json
+C:\Users\roberto\Documents\SistemaSaludos\bin\Debug\net8.0\publicado\PantallasIdeo.runtimeconfig.json
+C:\Users\roberto\Documents\SistemaSaludos\bin\Debug\net8.0\publicado\PantallasIdeo.staticwebassets.endpoints.json

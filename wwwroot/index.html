@@ -101,6 +101,18 @@
       color: rgba(244,240,232,0.4);
       white-space: pre-line;
     }
+    .preview-imagen-img {
+      max-width: 100%;
+      max-height: 120px;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+    .preview-imagen-texto {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #f4f0e8;
+      margin-top: 10px;
+    }
 
     .campos-grupo { margin-bottom: 0; }
     .col-2 { display: flex; gap: 12px; }
@@ -337,6 +349,11 @@
                   Aviso
                 </button>
 
+                <button class="msg-tipo-btn" onclick="seleccionarTipo('imagen')" id="tipo-imagen">
+                  <span class="tipo-icon">🖼️</span>
+                  Imagen
+                </button>
+
                 <button class="msg-tipo-btn" onclick="seleccionarTipo('limpiar')" id="tipo-limpiar">
                   <span class="tipo-icon">🧹</span>
                   Limpiar
@@ -416,6 +433,28 @@
                     placeholder="Más información..."
                     oninput="actualizarPreview()">
                 </div>
+              </div>
+            </div>
+
+            <!-- Campos: Imagen -->
+            <div id="campos-imagen" class="campos-grupo" style="display:none">
+              <div class="form-group">
+                <label class="form-label">Seleccionar imagen *</label>
+                <input type="file" id="msg-imagen-file" class="form-select" accept="image/*"
+                  onchange="previsualizarImagen()" style="padding: 10px;">
+                <input type="hidden" id="msg-imagen-url">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Título de la oferta/imagen</label>
+                <input type="text" id="msg-imagen-titulo" class="form-select"
+                  placeholder="Ej: Gran promoción"
+                  oninput="actualizarPreview()">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Texto (opcional)</label>
+                <input type="text" id="msg-imagen-texto" class="form-select"
+                  placeholder="Ej: Detalles de la oferta"
+                  oninput="actualizarPreview()">
               </div>
             </div>
 

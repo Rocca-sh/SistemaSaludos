@@ -1,0 +1,16 @@
+C:\Users\roberto\Documents\SistemaSaludos\publicado\PantallasIdeo.exe
+C:\Users\roberto\Documents\SistemaSaludos\publicado\appsettings.Development.json
+C:\Users\roberto\Documents\SistemaSaludos\publicado\appsettings.json
+C:\Users\roberto\Documents\SistemaSaludos\publicado\greetings.json
+C:\Users\roberto\Documents\SistemaSaludos\publicado\PantallasIdeo.dll
+C:\Users\roberto\Documents\SistemaSaludos\publicado\PantallasIdeo.deps.json
+C:\Users\roberto\Documents\SistemaSaludos\publicado\PantallasIdeo.runtimeconfig.json
+C:\Users\roberto\Documents\SistemaSaludos\publicado\PantallasIdeo.pdb
+C:\Users\roberto\Documents\SistemaSaludos\publicado\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+C:\Users\roberto\Documents\SistemaSaludos\publicado\Microsoft.Extensions.Diagnostics.Abstractions.dll
+C:\Users\roberto\Documents\SistemaSaludos\publicado\Microsoft.Extensions.Hosting.Abstractions.dll
+C:\Users\roberto\Documents\SistemaSaludos\publicado\Microsoft.Extensions.Logging.Abstractions.dll
+C:\Users\roberto\Documents\SistemaSaludos\publicado\Microsoft.Extensions.ObjectPool.dll
+C:\Users\roberto\Documents\SistemaSaludos\publicado\Microsoft.Extensions.Options.dll
+C:\Users\roberto\Documents\SistemaSaludos\publicado\Newtonsoft.Json.dll
+C:\Users\roberto\Documents\SistemaSaludos\publicado\System.Net.WebSockets.WebSocketProtocol.dll

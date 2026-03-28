@@ -61,16 +61,19 @@ function navigateTo(view) {
 async function loadScreens() {
   try {
     const fresh = await API.getScreens();
+    let deleted = JSON.parse(localStorage.getItem("deletedScreens") || "[]");
+
+    const filtered = fresh.filter(s => !deleted.includes(s.id));
 
     // Detect newly reconnected screens that had a pending queue
-    fresh.forEach(s => {
+    filtered.forEach(s => {
       const prev = state.screens.find(p => p.id === s.id);
       if (prev && prev.status === "offline" && s.status === "online" && s.queue?.length) {
         showReconnectConfirm(s);
       }
     });
 
-    state.screens = fresh;
+    state.screens = filtered;
     renderScreens();
     updateBadges();
   } catch (e) {
@@ -170,13 +173,22 @@ function renderVisits() {
 
   let html = "";
   if (state.visits.length) {
-    html += state.visits.map((txt, i) => `
+    html += state.visits.map((txt, i) => {
+      let dispTxt = String(txt);
+      if (dispTxt.startsWith("{") && dispTxt.includes('"type":"imagen"')) {
+        try {
+          let obj = JSON.parse(dispTxt);
+          dispTxt = "🖼️ Imagen" + (obj.texto ? " - " + obj.texto : "");
+        } catch(e) {}
+      }
+      return `
       <div class="visit-card" style="padding:16px; display:flex; justify-content:space-between; align-items:center;">
         <div class="visit-info" style="font-size:1.1rem;font-weight:bold;color:#111;">
-          ${String(txt).replace(/</g, "&lt;").replace(/>/g, "&gt;")}
+          ${dispTxt.replace(/</g, "&lt;").replace(/>/g, "&gt;")}
         </div>
         <button class="btn btn-danger btn-sm" onclick="deleteGreeting(${i})">🗑️ Borrar</button>
-      </div>`).join("");
+      </div>`;
+    }).join("");
   } else {
     html = `<div class="empty-state">
       <div class="empty-state-icon">👁️</div>
@@ -270,7 +282,22 @@ function renderSendView() {
     `<option value="all">📡 Todas las pantallas</option>`;
 
   visitSel.innerHTML = `<option value="">— Seleccionar mensaje —</option>` +
-    state.visits.map((txt, i) => `<option value="${i}">${String(txt).substring(0,60)}...</option>`).join("");
+    state.visits.map((txt, i) => {
+      let title = String(txt).substring(0,60);
+      try {
+        if (title.startsWith("{")) {
+          let obj = JSON.parse(txt);
+          if (obj.titulo) {
+            title = obj.titulo;
+          } else if (obj.texto && obj.type === "imagen") {
+            title = obj.texto.substring(0, 60);
+          } else if (obj.type === "imagen") {
+            title = "Imagen sin título";
+          }
+        }
+      } catch(e) {}
+      return `<option value="${i}">${title}...</option>`;
+    }).join("");
 }
 
 async function sendGreeting() {
@@ -284,8 +311,18 @@ async function sendGreeting() {
   const txt = state.visits[visitId];
   if (!txt) return;
 
-  const type = "texto";
-  const payload = { titulo: String(txt), subtexto: "" };
+  let type = "texto";
+  let payload = { titulo: String(txt), subtexto: "" };
+
+  try {
+    if (String(txt).startsWith("{")) {
+      let obj = JSON.parse(txt);
+      if (obj.type) {
+        type = obj.type;
+        payload = obj;
+      }
+    }
+  } catch(e) {}
 
   btn.disabled = true;
   btn.innerHTML = `<span class="spinner"></span> Enviando...`;
@@ -452,13 +489,19 @@ async function clearScreen(screenId) {
 }
 
 async function deleteScreenUI(screenId) {
-  if(!confirm("¿Deseas borrar esta pantalla?")) return;
+  if(!confirm("¿Deseas ocultar esta pantalla permanentemente?")) return;
   try {
+    let deleted = JSON.parse(localStorage.getItem("deletedScreens") || "[]");
+    if(!deleted.includes(screenId)) {
+      deleted.push(screenId);
+      localStorage.setItem("deletedScreens", JSON.stringify(deleted));
+    }
+
     await API.deleteScreen(screenId);
-    showToast("Pantalla borrada", "success");
+    showToast("Pantalla ocultada", "success");
     await loadScreens();
   } catch(e) {
-    showToast("Error al borrar pantalla", "error");
+    showToast("Error al ocultar pantalla", "error");
   }
 }
 

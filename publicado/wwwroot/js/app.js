@@ -61,16 +61,19 @@ function navigateTo(view) {
 async function loadScreens() {
   try {
     const fresh = await API.getScreens();
+    let deleted = JSON.parse(localStorage.getItem("deletedScreens") || "[]");
+
+    const filtered = fresh.filter(s => !deleted.includes(s.id));
 
     // Detect newly reconnected screens that had a pending queue
-    fresh.forEach(s => {
+    filtered.forEach(s => {
       const prev = state.screens.find(p => p.id === s.id);
       if (prev && prev.status === "offline" && s.status === "online" && s.queue?.length) {
         showReconnectConfirm(s);
       }
     });
 
-    state.screens = fresh;
+    state.screens = filtered;
     renderScreens();
     updateBadges();
   } catch (e) {
@@ -141,6 +144,9 @@ function renderScreens() {
         <button class="btn btn-danger btn-sm" onclick="clearScreen('${s.id}')" ${!isOnline ? "disabled" : ""}>
           🧹 Limpiar
         </button>
+        <button class="btn btn-danger btn-sm" onclick="deleteScreenUI('${s.id}')">
+          🗑️ Borrar
+        </button>
       </div>
     </div>`;
   }).join("");
@@ -149,11 +155,13 @@ function renderScreens() {
 // ── LOAD VISITS ──────────────────────────────────────────────
 async function loadVisits() {
   try {
-    state.visits = await API.getVisits();
+    const res = await fetch("/api/greetings");
+    if(!res.ok) throw new Error();
+    state.visits = await res.json();
     renderVisits();
     updateBadges();
   } catch (e) {
-    showToast("Error al cargar visitas", "error");
+    showToast("Error al cargar vistas", "error");
   }
 }
 
@@ -161,68 +169,33 @@ function renderVisits() {
   const list = $("visits-list");
   if (!list) return;
 
-  const today = new Date().toISOString().split("T")[0];
-  const todayVisits  = state.visits.filter(v => v.date === today);
-  const futureVisits = state.visits.filter(v => v.date > today);
-
-  if ($("stat-visits")) $("stat-visits").textContent = todayVisits.length;
+  if ($("stat-visits")) $("stat-visits").textContent = state.visits.length;
 
   let html = "";
-
-  if (todayVisits.length) {
-    html += `<div class="visits-group-label">HOY</div>`;
-    html += todayVisits.map(v => visitCardHtml(v)).join("");
-  }
-
-  if (futureVisits.length) {
-    html += `<div class="visits-group-label" style="margin-top:24px">PRÓXIMAS</div>`;
-    html += futureVisits.map(v => visitCardHtml(v)).join("");
-  }
-
-  if (!html) {
+  if (state.visits.length) {
+    html += state.visits.map((txt, i) => {
+      let dispTxt = String(txt);
+      if (dispTxt.startsWith("{") && dispTxt.includes('"type":"imagen"')) {
+        try {
+          let obj = JSON.parse(dispTxt);
+          dispTxt = "🖼️ Imagen" + (obj.texto ? " - " + obj.texto : "");
+        } catch(e) {}
+      }
+      return `
+      <div class="visit-card" style="padding:16px; display:flex; justify-content:space-between; align-items:center;">
+        <div class="visit-info" style="font-size:1.1rem;font-weight:bold;color:#111;">
+          ${dispTxt.replace(/</g, "&lt;").replace(/>/g, "&gt;")}
+        </div>
+        <button class="btn btn-danger btn-sm" onclick="deleteGreeting(${i})">🗑️ Borrar</button>
+      </div>`;
+    }).join("");
+  } else {
     html = `<div class="empty-state">
-      <div class="empty-state-icon">📅</div>
-      <div class="empty-state-text">No hay visitas registradas</div>
+      <div class="empty-state-icon">👁️</div>
+      <div class="empty-state-text">No hay vistas registradas</div>
     </div>`;
   }
-
   list.innerHTML = html;
-}
-
-function visitCardHtml(v) {
-  const sourceBadge = v.source === "ideeo"
-    ? `<span class="source-badge ideeo">ideeo</span>`
-    : `<span class="source-badge manual">manual</span>`;
-
-  return `
-  <div class="visit-card">
-    <div>
-      <div class="visit-time">${v.time}</div>
-      <div class="visit-time-label">${v.durationMinutes} min</div>
-    </div>
-    <div class="visit-info">
-      <div class="visit-company-row">
-        <span class="visit-company">${v.company}</span>
-        ${sourceBadge}
-      </div>
-      <div class="visit-meta">
-        <span>🏷️ ${v.host}</span>
-        <span>📍 ${v.area}</span>
-      </div>
-      <div class="visitors-chips">
-        ${v.visitors.map(vis => `
-          <div class="visitor-chip">
-            <span class="visitor-chip-name">${vis.name}</span>
-            <span class="visitor-chip-role">${vis.role}</span>
-          </div>`).join("")}
-      </div>
-    </div>
-    <div class="visit-actions">
-      <button class="btn btn-primary btn-sm" onclick="openSendModalForVisit(${v.id})">
-        📨 Enviar bienvenida
-      </button>
-    </div>
-  </div>`;
 }
 
 // ── SYNC FROM IDEEO ──────────────────────────────────────────
@@ -308,17 +281,23 @@ function renderSendView() {
     online.map(s => `<option value="${s.id}">${s.location}</option>`).join("") +
     `<option value="all">📡 Todas las pantallas</option>`;
 
-  const today = new Date().toISOString().split("T")[0];
-  const todayV  = state.visits.filter(v => v.date === today);
-  const futureV = state.visits.filter(v => v.date > today);
-
-  visitSel.innerHTML = `<option value="">— Seleccionar visita —</option>`;
-  if (todayV.length)  visitSel.innerHTML += `<optgroup label="Hoy">${todayV.map(visitOption).join("")}</optgroup>`;
-  if (futureV.length) visitSel.innerHTML += `<optgroup label="Próximas">${futureV.map(visitOption).join("")}</optgroup>`;
-}
-
-function visitOption(v) {
-  return `<option value="${v.id}">${v.time} — ${v.company} (${v.visitors.length} visitante${v.visitors.length !== 1 ? "s" : ""})</option>`;
+  visitSel.innerHTML = `<option value="">— Seleccionar mensaje —</option>` +
+    state.visits.map((txt, i) => {
+      let title = String(txt).substring(0,60);
+      try {
+        if (title.startsWith("{")) {
+          let obj = JSON.parse(txt);
+          if (obj.titulo) {
+            title = obj.titulo;
+          } else if (obj.texto && obj.type === "imagen") {
+            title = obj.texto.substring(0, 60);
+          } else if (obj.type === "imagen") {
+            title = "Imagen sin título";
+          }
+        }
+      } catch(e) {}
+      return `<option value="${i}">${title}...</option>`;
+    }).join("");
 }
 
 async function sendGreeting() {
@@ -327,16 +306,23 @@ async function sendGreeting() {
   const btn       = $("send-btn");
 
   if (!screenVal) { showToast("Selecciona una pantalla", "info"); return; }
-  if (!visitId)   { showToast("Selecciona una visita", "info"); return; }
+  if (isNaN(visitId)) { showToast("Selecciona un mensaje", "info"); return; }
 
-  const visit = state.visits.find(v => v.id === visitId);
-  if (!visit) return;
+  const txt = state.visits[visitId];
+  if (!txt) return;
 
-  const isSingle = visit.visitors.length === 1;
-  const type     = isSingle ? "saludoVisitante" : "saludoGrupo";
-  const payload  = isSingle
-    ? { nombre: visit.visitors[0].name, cargo: visit.visitors[0].role, empresa: visit.company, logo: visit.logo || null, anfitrion: visit.host, area: visit.area }
-    : { empresa: visit.company, logo: visit.logo || null, visitantes: visit.visitors.map(v => ({ nombre: v.name, cargo: v.role })) };
+  let type = "texto";
+  let payload = { titulo: String(txt), subtexto: "" };
+
+  try {
+    if (String(txt).startsWith("{")) {
+      let obj = JSON.parse(txt);
+      if (obj.type) {
+        type = obj.type;
+        payload = obj;
+      }
+    }
+  } catch(e) {}
 
   btn.disabled = true;
   btn.innerHTML = `<span class="spinner"></span> Enviando...`;
@@ -344,13 +330,13 @@ async function sendGreeting() {
   try {
     if (screenVal === "all") {
       await API.broadcast(type, payload);
-      showToast("Bienvenida enviada a todas las pantallas ✅", "success");
+      showToast("Mensaje enviado a todas las pantallas ✅", "success");
     } else {
-      await sendWithAck(screenVal, type, payload, visit.id);
+      await sendWithAck(screenVal, type, payload, -1);
     }
   } finally {
     btn.disabled = false;
-    btn.innerHTML = `📨 Enviar bienvenida`;
+    btn.innerHTML = `📨 Enviar`;
   }
 }
 
@@ -502,6 +488,23 @@ async function clearScreen(screenId) {
   }
 }
 
+async function deleteScreenUI(screenId) {
+  if(!confirm("¿Deseas ocultar esta pantalla permanentemente?")) return;
+  try {
+    let deleted = JSON.parse(localStorage.getItem("deletedScreens") || "[]");
+    if(!deleted.includes(screenId)) {
+      deleted.push(screenId);
+      localStorage.setItem("deletedScreens", JSON.stringify(deleted));
+    }
+
+    await API.deleteScreen(screenId);
+    showToast("Pantalla ocultada", "success");
+    await loadScreens();
+  } catch(e) {
+    showToast("Error al ocultar pantalla", "error");
+  }
+}
+
 async function clearAllScreens() {
   try {
     await API.clearAll();
@@ -509,6 +512,21 @@ async function clearAllScreens() {
     await loadScreens();
   } catch (e) {
     showToast("Error al limpiar pantallas", "error");
+  }
+}
+
+async function deleteGreeting(index) {
+  if(!confirm("¿Deseas borrar este mensaje guardado?")) return;
+  try {
+    const res = await fetch(`/api/greetings/${index}`, { method: 'DELETE' });
+    if(res.ok) {
+      showToast("Mensaje borrado", "success");
+      await loadVisits();
+    } else {
+      showToast("Error al borrar mensaje", "error");
+    }
+  } catch(e) {
+    showToast("Error al borrar mensaje", "error");
   }
 }
 

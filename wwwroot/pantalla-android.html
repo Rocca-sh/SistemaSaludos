@@ -565,7 +565,7 @@
 
     <div id="screen-message">
       <div class="msg-line"></div>
-      <div class="msg-welcome">Bienvenido</div>
+      <div class="msg-welcome" id="msg-welcome">Bienvenido</div>
       <div class="msg-names" id="msg-names"></div>
       <div class="msg-role" id="msg-role"></div>
       <div class="msg-company-block" id="msg-company-block" style="display:none">
@@ -574,6 +574,12 @@
       </div>
       <div class="msg-visiting">Visita a</div>
       <div class="msg-host" id="msg-host"></div>
+    </div>
+    
+    <div id="screen-imagen" style="display: none; flex-direction: column; align-items: center; text-align: center; width: 100%; max-width: 95vw;">
+      <div id="msg-imagen-titulo" style="font-size: 4.5rem; font-weight: bold; color: #e8c97a; margin-bottom: 20px;"></div>
+      <img id="msg-imagen-src" src="" style="width: 95vw; height: 75vh; object-fit: contain; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); margin-bottom: 25px;">
+      <div id="msg-imagen-texto" style="font-size: 3.5rem; font-weight: bold; color: #f4f0e8;"></div>
     </div>
 
     <div id="screen-clear">
@@ -613,11 +619,13 @@
       var idle = document.getElementById("screen-idle");
       var message = document.getElementById("screen-message");
       var clear = document.getElementById("screen-clear");
+      var imagen = document.getElementById("screen-imagen");
 
       // Ocultar todos
       idle.style.display = "none";
       message.style.display = "none";
       clear.style.display = "none";
+      if (imagen) imagen.style.display = "none";
 
       if (name === "idle") {
         idle.style.display = "-webkit-flex";
@@ -636,6 +644,16 @@
         void message.offsetWidth;
         message.style.webkitAnimation = "revealMsg 0.8s ease-out";
         message.style.animation = "revealMsg 0.8s ease-out";
+      } else if (name === "imagen") {
+        if (imagen) {
+          imagen.style.display = "-webkit-flex";
+          imagen.style.display = "flex";
+          imagen.style.webkitAnimation = "none";
+          imagen.style.animation = "none";
+          void imagen.offsetWidth;
+          imagen.style.webkitAnimation = "revealMsg 0.8s ease-out";
+          imagen.style.animation = "revealMsg 0.8s ease-out";
+        }
       } else if (name === "clear") {
         clear.style.display = "-webkit-flex";
         clear.style.display = "flex";
@@ -669,11 +687,60 @@
       }
 
       if (type === "saludoVisitante" || type === "saludoGrupo") {
+        document.getElementById("msg-welcome").textContent = "Bienvenido";
         renderGreeting(payload, type);
         return;
       }
 
+      if (type === "texto") {
+        renderTextoLibre(payload);
+        return;
+      }
+
+      if (type === "aviso") {
+        renderAviso(payload);
+        return;
+      }
+
+      if (type === "imagen") {
+        renderImagen(payload);
+        return;
+      }
+
       showScreen("idle");
+    }
+
+    function renderImagen(payload) {
+      if (!payload) return;
+      var title = document.getElementById("msg-imagen-titulo");
+      if (title) title.textContent = payload.titulo || "";
+      var img = document.getElementById("msg-imagen-src");
+      if (img) img.src = payload.imagenUrl || "";
+      var txt = document.getElementById("msg-imagen-texto");
+      if (txt) txt.textContent = payload.texto || "";
+      showScreen("imagen");
+    }
+
+    function renderTextoLibre(payload) {
+      if (!payload) return;
+      document.getElementById("msg-welcome").textContent = ""; 
+      document.getElementById("msg-names").textContent = payload.titulo || "";
+      document.getElementById("msg-names").style.fontSize = "4.5rem";
+      document.getElementById("msg-role").textContent = payload.subtexto || "";
+      document.getElementById("msg-company-block").style.display = "none";
+      document.getElementById("msg-host").textContent = "";
+      showScreen("message");
+    }
+
+    function renderAviso(payload) {
+      if (!payload) return;
+      document.getElementById("msg-welcome").textContent = "Aviso";
+      document.getElementById("msg-names").textContent = (payload.icono || "📢") + " " + (payload.texto || "");
+      document.getElementById("msg-names").style.fontSize = "4.0rem";
+      document.getElementById("msg-role").textContent = payload.sub || "";
+      document.getElementById("msg-company-block").style.display = "none";
+      document.getElementById("msg-host").textContent = "";
+      showScreen("message");
     }
 
     function renderGreeting(payload, type) {

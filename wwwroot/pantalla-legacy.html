@@ -259,6 +259,7 @@
   <div id="main">
 
     <!-- ── LOGO GLOBAL / FIJO ARRIBA ── -->
+    <div id="pantalla-nombre-asignado" style="font-size: 2.5rem; font-weight: bold; color: #555; margin-bottom: 5px;"></div>
     <img src="/logo/png-transparent-autozone-logo-icons-logos-emojis-car-logos.png" alt="AutoZone Logo" class="global-logo" style="margin-top: 10px; margin-bottom: 20px;">
 
     <!-- ── IDLE / ESPERA (Fijo, controlado por servidor) ── -->
@@ -270,7 +271,7 @@
     <!-- ── PANTALLA MENSAJE PRINCIPAL ── -->
     <div id="screen-message" class="screen-wrapper">
       <div class="msg-line"></div>
-      <div class="msg-bienvenido">Bienvenido</div>
+      <div class="msg-bienvenido" id="msg-bienvenido">Bienvenido</div>
       <div class="msg-nombre" id="msg-nombre"></div>
       <div class="msg-cargo" id="msg-cargo"></div>
       <div class="msg-empresa-bloque" id="msg-empresa-bloque" style="display:none">
@@ -279,6 +280,13 @@
       </div>
       <div class="msg-visita-label">Visita a</div>
       <div class="msg-anfitrion" id="msg-anfitrion"></div>
+    </div>
+
+    <!-- ── PANTALLA IMAGEN ── -->
+    <div id="screen-imagen" class="screen-wrapper" style="display:none;">
+      <div id="msg-imagen-titulo" style="font-size: 4rem; font-weight: bold; color: #E31837; text-align: center; max-width: 95vw; margin-bottom: 20px;"></div>
+      <img id="msg-imagen-src" src="" style="width: 95vw; height: 70vh; object-fit: contain; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-bottom: 25px;">
+      <div id="msg-imagen-texto" style="font-size: 3rem; font-weight: bold; color: #333; text-align: center; max-width: 95vw;"></div>
     </div>
 
     <!-- ── PANTALLA CLEAR (OK) ── -->
@@ -336,10 +344,12 @@
       var idle = document.getElementById("screen-idle");
       var message = document.getElementById("screen-message");
       var clear = document.getElementById("screen-clear");
+      var imagen = document.getElementById("screen-imagen");
 
       idle.style.display = "none";
       message.style.display = "none";
       clear.style.display = "none";
+      if (imagen) imagen.style.display = "none";
 
       if (nombre === "idle") {
         idle.style.display = "-webkit-flex";
@@ -349,6 +359,12 @@
         message.style.display = "-webkit-flex";
         message.style.display = "flex";
         message.className = "screen-wrapper slide-in";
+      } else if (nombre === "imagen") {
+        if (imagen) {
+          imagen.style.display = "-webkit-flex";
+          imagen.style.display = "flex";
+          imagen.className = "screen-wrapper slide-in";
+        }
       } else if (nombre === "clear") {
         clear.style.display = "-webkit-flex";
         clear.style.display = "flex";
@@ -397,6 +413,21 @@
         mostrarAviso(payload);
         return;
       }
+      if (type === "imagen") {
+        mostrarImagen(payload);
+        return;
+      }
+    }
+
+    function mostrarImagen(payload) {
+      if (!payload) return;
+      var title = document.getElementById("msg-imagen-titulo");
+      if (title) title.textContent = payload.titulo || "";
+      var img = document.getElementById("msg-imagen-src");
+      if (img) img.src = payload.imagenUrl || "";
+      var txt = document.getElementById("msg-imagen-texto");
+      if (txt) txt.textContent = payload.texto || "";
+      mostrarPantalla("imagen");
     }
 
     function mostrarSaludo(payload, type) {
@@ -543,6 +574,17 @@
       }
       if (msg.type === 1) {
         var target = (msg.target || "").toLowerCase();
+        
+        if (target === "registrada") {
+           var assignedName = msg.arguments && msg.arguments[0];
+           if (assignedName) {
+              var lbl = document.getElementById("pantalla-nombre-asignado");
+              if (lbl) lbl.textContent = assignedName;
+              SCREEN_NAME = assignedName;
+           }
+           return;
+        }
+
         if (target === "actualizarinfo") {
           var arg = msg.arguments && msg.arguments[0];
           if (!arg) return;

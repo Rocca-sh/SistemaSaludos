@@ -34,13 +34,13 @@ function seleccionarTipo(tipo) {
   msgState.tipo = tipo;
 
   // Botones
-  ["bienvenida","texto","aviso","limpiar"].forEach(function(t) {
+  ["bienvenida","texto","aviso","imagen","limpiar"].forEach(function(t) {
     var btn = document.getElementById("tipo-" + t);
     if (btn) btn.className = "msg-tipo-btn" + (t === tipo ? " active" : "");
   });
 
   // Campos
-  ["bienvenida","texto","aviso","limpiar"].forEach(function(t) {
+  ["bienvenida","texto","aviso","imagen","limpiar"].forEach(function(t) {
     var el = document.getElementById("campos-" + t);
     if (el) el.style.display = t === tipo ? "block" : "none";
   });
@@ -90,6 +90,28 @@ function actualizarPreview() {
       break;
     }
 
+    case "imagen": {
+      var imagenUrl = (document.getElementById("msg-imagen-url") || {}).value || "";
+      var imgTitulo = (document.getElementById("msg-imagen-titulo") || {}).value || "";
+      var imgTexto  = (document.getElementById("msg-imagen-texto") || {}).value || "";
+
+      if (imgTitulo) {
+          html += '<div style="font-size: 1.4rem; font-weight: 700; color: #c9a84c; margin-bottom: 8px;">' + escHtml(imgTitulo) + '</div>';
+      }
+
+      if (imagenUrl) {
+          html += '<img src="' + escHtml(imagenUrl) + '" class="preview-imagen-img">';
+      } else {
+          html += '<div style="font-size:2rem;opacity:0.35">🖼️</div>';
+          html += '<div style="color:rgba(244,240,232,0.3);font-size:0.9rem;margin-top:8px">Selecciona una imagen</div>';
+      }
+      
+      if (imgTexto) {
+          html += '<div class="preview-imagen-texto">' + escHtml(imgTexto) + '</div>';
+      }
+      break;
+    }
+
     case "limpiar": {
       html += '<div style="font-size:2.5rem;opacity:0.35">🧹</div>';
       html += '<div style="color:rgba(244,240,232,0.3);font-size:1rem;margin-top:8px">Pantalla en espera</div>';
@@ -106,6 +128,42 @@ function escHtml(str) {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/\n/g, "<br>");
+}
+
+// ── SUBIR IMAGEN ──────────────────────────────────────────────
+async function previsualizarImagen() {
+  var fileInput = document.getElementById("msg-imagen-file");
+  var file = fileInput.files && fileInput.files[0];
+  if (!file) return;
+
+  var btn = document.getElementById("msg-send-btn");
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "Subiendo imagen...";
+  }
+
+  var formData = new FormData();
+  formData.append("requestFile", file);
+
+  try {
+    var res = await fetch("/api/upload", {
+      method: "POST",
+      body: formData
+    });
+    if (!res.ok) throw new Error("Error subiendo imagen");
+    var data = await res.json();
+    var urlInput = document.getElementById("msg-imagen-url");
+    if (urlInput) urlInput.value = data.url;
+    actualizarPreview();
+  } catch (e) {
+    console.error(e);
+    if (typeof showToast === "function") showToast("Error al subir la imagen", "error");
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = "📤 Enviar mensaje";
+    }
+  }
 }
 
 // ── LISTA DE PANTALLAS ────────────────────────────────────────
@@ -258,6 +316,19 @@ function construirPayload(tipo) {
       };
     }
 
+    case "imagen": {
+      var imagenUrl = (document.getElementById("msg-imagen-url") || {}).value || "";
+      if (!imagenUrl) {
+        if (typeof showToast === "function") showToast("Espera a que se suba la imagen o selecciona una nueva", "info");
+        return null; // Cancel format
+      }
+      return {
+        imagenUrl: imagenUrl,
+        titulo:    ((document.getElementById("msg-imagen-titulo") || {}).value || "").trim(),
+        texto:     ((document.getElementById("msg-imagen-texto") || {}).value || "").trim(),
+      };
+    }
+
     case "limpiar":
       return {};
 
@@ -269,12 +340,62 @@ function construirPayload(tipo) {
 // ── LIMPIAR FORMULARIO ────────────────────────────────────────
 function limpiarFormMensaje() {
   ["msg-nombre","msg-cargo","msg-empresa","msg-anfitrion",
-   "msg-titulo","msg-subtexto","msg-aviso-texto","msg-aviso-sub"]
+   "msg-titulo","msg-subtexto","msg-aviso-texto","msg-aviso-sub",
+   "msg-imagen-titulo","msg-imagen-texto"]
   .forEach(function(id) {
     var el = document.getElementById(id);
     if (el) el.value = "";
   });
+  var imgFile = document.getElementById("msg-imagen-file");
+  if (imgFile) imgFile.value = "";
+  var imgUrl = document.getElementById("msg-imagen-url");
+  if (imgUrl) imgUrl.value = "";
+
   var iconoSel = document.getElementById("msg-aviso-icono");
   if (iconoSel) iconoSel.selectedIndex = 0;
   actualizarPreview();
+}
+
+// ── GUARDAR EN SERVIDOR ────────────────────────────────────────
+async function guardarMensajeEnServidor() {
+  var texto = "";
+  if (msgState.tipo === "texto") {
+    texto = (document.getElementById("msg-titulo") || {}).value || "";
+  } else if (msgState.tipo === "aviso") {
+    texto = (document.getElementById("msg-aviso-texto") || {}).value || "";
+  } else if (msgState.tipo === "bienvenida") {
+    var n = (document.getElementById("msg-nombre") || {}).value || "";
+    if (n) texto = "¡Bienvenido " + n + "!";
+  } else if (msgState.tipo === "imagen") {
+    var imgU = (document.getElementById("msg-imagen-url") || {}).value || "";
+    var imgTi = (document.getElementById("msg-imagen-titulo") || {}).value || "";
+    var imgT = (document.getElementById("msg-imagen-texto") || {}).value || "";
+    if (imgU) {
+       texto = JSON.stringify({ type: "imagen", imagenUrl: imgU, titulo: imgTi, texto: imgT });
+    }
+  } else {
+    if (typeof showToast === "function") showToast("Escribe un mensaje en otra pestaña de mensaje", "info");
+    return;
+  }
+
+  texto = texto.trim();
+  if (!texto) {
+    if (typeof showToast === "function") showToast("El mensaje está vacío. Escríbelo primero.", "error");
+    return;
+  }
+
+  try {
+    var resp = await fetch("/api/greetings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ texto: texto })
+    });
+    if (resp.ok) {
+      if (typeof showToast === "function") showToast("✅ Guardado en rotación de servidor como JSON", "success");
+    } else {
+      throw new Error("HTTP error " + resp.status);
+    }
+  } catch(e) {
+    if (typeof showToast === "function") showToast("❌ Hubo un error al intentar guardarlo", "error");
+  }
 }

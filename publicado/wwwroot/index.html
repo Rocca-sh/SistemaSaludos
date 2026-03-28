@@ -101,6 +101,18 @@
       color: rgba(244,240,232,0.4);
       white-space: pre-line;
     }
+    .preview-imagen-img {
+      max-width: 100%;
+      max-height: 120px;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+    .preview-imagen-texto {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #f4f0e8;
+      margin-top: 10px;
+    }
 
     .campos-grupo { margin-bottom: 0; }
     .col-2 { display: flex; gap: 12px; }
@@ -167,16 +179,16 @@
       </button>
 
       <button id="nav-visits" class="nav-item" onclick="navigateTo('visits')">
-        <span class="nav-icon">📅</span>
-        Visitas
-        <span id="badge-visits" class="nav-badge">0</span>
+        <span class="nav-icon">👁️</span>
+        Vistas
+        <span id="badge-visits" class="nav-badge" style="display:none">0</span>
       </button>
 
       <div class="nav-section-label">Acciones</div>
 
       <button id="nav-send" class="nav-item" onclick="navigateTo('send')">
         <span class="nav-icon">📨</span>
-        Enviar Bienvenida
+        Enviar
         <span id="badge-send" class="nav-badge">0</span>
       </button>
 
@@ -238,7 +250,7 @@
           </div>
           <div class="stat-card">
             <div class="stat-value" id="stat-visits">—</div>
-            <div class="stat-label">Visitas hoy</div>
+            <div class="stat-label">Vistas guardadas</div>
           </div>
         </div>
 
@@ -258,11 +270,10 @@
       <div id="view-visits" class="view">
         <div class="section-header">
           <div>
-            <div class="section-title">Visitas programadas</div>
+            <div class="section-title">Vistas guardadas</div>
             <div class="section-sub" id="visits-date"></div>
           </div>
           <div style="display:flex;gap:8px">
-            <button class="btn btn-secondary btn-sm" onclick="syncFromIdeeo()">🔄 Sincronizar con ideeo</button>
             <button class="btn btn-ghost btn-sm" onclick="loadVisits()">↺ Recargar</button>
           </div>
         </div>
@@ -278,8 +289,8 @@
       <div id="view-send" class="view">
         <div class="section-header">
           <div>
-            <div class="section-title">Enviar bienvenida</div>
-            <div class="section-sub">Selecciona pantalla y visita</div>
+            <div class="section-title">Enviar</div>
+            <div class="section-sub">Selecciona pantalla y mensaje</div>
           </div>
         </div>
         <div class="card" style="padding:26px;max-width:500px">
@@ -290,18 +301,14 @@
             </select>
           </div>
           <div class="form-group">
-            <label class="form-label">Visita a mostrar</label>
+            <label class="form-label">Mensaje a mostrar</label>
             <select id="send-visit-select" class="form-select">
-              <option value="">— Seleccionar visita —</option>
+              <option value="">— Seleccionar mensaje —</option>
             </select>
-          </div>
-          <div class="send-hint">
-            💡 <strong>1 visitante</strong> → pantalla individual &nbsp;·&nbsp;
-            <strong>2 o más</strong> → pantalla de grupo con todos los nombres.
           </div>
           <div style="margin-top:18px;display:flex;gap:8px">
             <button id="send-btn" class="btn btn-primary" onclick="sendGreeting()" style="flex:1">
-              📨 Enviar bienvenida
+              📨 Enviar
             </button>
             <button class="btn btn-secondary" onclick="navigateTo('screens')">Cancelar</button>
           </div>
@@ -342,6 +349,11 @@
                   Aviso
                 </button>
 
+                <button class="msg-tipo-btn" onclick="seleccionarTipo('imagen')" id="tipo-imagen">
+                  <span class="tipo-icon">🖼️</span>
+                  Imagen
+                </button>
+
                 <button class="msg-tipo-btn" onclick="seleccionarTipo('limpiar')" id="tipo-limpiar">
                   <span class="tipo-icon">🧹</span>
                   Limpiar
@@ -355,19 +367,19 @@
               <div class="col-2">
                 <div class="form-group">
                   <label class="form-label">Nombre *</label>
-                  <input type="text" id="msg-nombre" class="form-select" placeholder="Ej: Carlos Pérez"
+                  <input type="text" id="msg-nombre" class="form-select" placeholder="Ej: Nombre del visitante"
                     oninput="actualizarPreview()">
                 </div>
                 <div class="form-group">
                   <label class="form-label">Cargo / Rol</label>
-                  <input type="text" id="msg-cargo" class="form-select" placeholder="Ej: Director"
+                  <input type="text" id="msg-cargo" class="form-select" placeholder="Ej: Rol"
                     oninput="actualizarPreview()">
                 </div>
               </div>
               <div class="col-2">
                 <div class="form-group">
                   <label class="form-label">Empresa</label>
-                  <input type="text" id="msg-empresa" class="form-select" placeholder="Ej: Tech Corp"
+                  <input type="text" id="msg-empresa" class="form-select" placeholder="Ej: Empresa"
                     oninput="actualizarPreview()">
                 </div>
                 <div class="form-group">
@@ -424,6 +436,28 @@
               </div>
             </div>
 
+            <!-- Campos: Imagen -->
+            <div id="campos-imagen" class="campos-grupo" style="display:none">
+              <div class="form-group">
+                <label class="form-label">Seleccionar imagen *</label>
+                <input type="file" id="msg-imagen-file" class="form-select" accept="image/*"
+                  onchange="previsualizarImagen()" style="padding: 10px;">
+                <input type="hidden" id="msg-imagen-url">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Título de la oferta/imagen</label>
+                <input type="text" id="msg-imagen-titulo" class="form-select"
+                  placeholder="Ej: Gran promoción"
+                  oninput="actualizarPreview()">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Texto (opcional)</label>
+                <input type="text" id="msg-imagen-texto" class="form-select"
+                  placeholder="Ej: Detalles de la oferta"
+                  oninput="actualizarPreview()">
+              </div>
+            </div>
+
             <!-- Campos: Limpiar (sin campos) -->
             <div id="campos-limpiar" class="campos-grupo" style="display:none">
               <div class="send-hint" style="margin-bottom:0">
@@ -451,6 +485,7 @@
               <button id="msg-send-btn" class="btn btn-primary" onclick="enviarMensajeLibre()" style="flex:1">
                 📤 Enviar mensaje
               </button>
+              <button class="btn btn-secondary" onclick="guardarMensajeEnServidor()">💾 Guardar en Servidor</button>
               <button class="btn btn-ghost" onclick="limpiarFormMensaje()">↺ Limpiar</button>
             </div>
 

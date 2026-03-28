@@ -80,4 +80,11 @@ const API = {
     if (!res.ok) throw new Error("Error al actualizar cola");
     return res.json();
   },
+
+  async deleteScreen(screenId) {
+    if (CONFIG.USE_MOCK) return new Promise(r => setTimeout(() => r({ ok: true }), 200));
+    const res = await fetch(`${CONFIG.BASE_URL}/pantallas/${screenId}`, { method: "DELETE" });
+    if (!res.ok) throw new Error("Error al eliminar pantalla");
+    return res.json();
+  },
 };

@@ -10,4 +10,13 @@
     <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.2.9" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="greetings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="logo\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

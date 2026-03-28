@@ -18,6 +18,14 @@ public class HubPantalla : Hub
     {
         string id = Context.ConnectionId;
 
+        // Auto-assign name if default, empty or generic
+        if (string.IsNullOrWhiteSpace(nombre) || 
+            nombre.Equals("AutoZone Kiosk", StringComparison.OrdinalIgnoreCase) || 
+            nombre.Equals("Pantalla", StringComparison.OrdinalIgnoreCase))
+        {
+            nombre = $"Pantalla {_service.GetNextScreenNumber()}";
+        }
+
         var pantalla = new Pantalla(id, nombre) { state = true };
         _service.Pantallas[id] = pantalla;
 
