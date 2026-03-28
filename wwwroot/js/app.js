@@ -19,6 +19,10 @@ const $$ = sel => document.querySelectorAll(sel);
 
 // ── INIT ─────────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
+  if (!localStorage.getItem('auth_token')) {
+    window.location.replace('/login');
+    return;
+  }
   startClock();
   loadAll();
   setInterval(loadScreens, CONFIG.REFRESH_INTERVAL);

@@ -48,8 +48,15 @@ app.UseStaticFiles(new StaticFileOptions
 
 // ── Rutas de páginas ─────────────────────────────────────────
 
-// Redirige la raíz al panel recepcionista
-app.MapGet("/", () => Results.Redirect("/panel"));
+// Redirige la raíz al login
+app.MapGet("/", () => Results.Redirect("/login"));
+
+// Login page
+app.MapGet("/login", async (HttpContext ctx) =>
+{
+    ctx.Response.ContentType = "text/html";
+    await ctx.Response.SendFileAsync("wwwroot/login.html");
+});
 
 // Panel recepcionista (tu index.html actual)
 app.MapGet("/panel", async (HttpContext ctx) =>
@@ -129,7 +136,7 @@ app.MapControllers();
 app.MapHub<HubPantalla>("/hub");
 app.Lifetime.ApplicationStarted.Register(() =>
 {
-    var url = "http://localhost:5000/panel";
+    var url = "http://localhost:5000/login";
     try
     {
         System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
