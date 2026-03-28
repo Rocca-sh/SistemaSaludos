@@ -1479,19 +1479,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\roberto\\.nuget\\packages\\": {}
+    "/home/rocca/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\roberto\\Documents\\SistemaSaludos\\PantallasIdeo.csproj",
+      "projectUniqueName": "/home/rocca/files/SistemaSaludos/PantallasIdeo.csproj",
       "projectName": "PantallasIdeo",
-      "projectPath": "C:\\Users\\roberto\\Documents\\SistemaSaludos\\PantallasIdeo.csproj",
-      "packagesPath": "C:\\Users\\roberto\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\roberto\\Documents\\SistemaSaludos\\obj\\",
+      "projectPath": "/home/rocca/files/SistemaSaludos/PantallasIdeo.csproj",
+      "packagesPath": "/home/rocca/.nuget/packages/",
+      "outputPath": "/home/rocca/files/SistemaSaludos/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\roberto\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "/home/rocca/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
@@ -1509,13 +1509,7 @@
         "warnAsError": [
           "NU1605"
         ]
-      },
-      "restoreAuditProperties": {
-        "enableAudit": "true",
-        "auditLevel": "low",
-        "auditMode": "direct"
-      },
-      "SdkAnalysisLevel": "10.0.200"
+      }
     },
     "frameworks": {
       "net8.0": {
@@ -1537,24 +1531,6 @@
         ],
         "assetTargetFallback": true,
         "warn": true,
-        "downloadDependencies": [
-          {
-            "name": "Microsoft.AspNetCore.App.Ref",
-            "version": "[8.0.25, 8.0.25]"
-          },
-          {
-            "name": "Microsoft.NETCore.App.Host.win-x64",
-            "version": "[8.0.25, 8.0.25]"
-          },
-          {
-            "name": "Microsoft.NETCore.App.Ref",
-            "version": "[8.0.25, 8.0.25]"
-          },
-          {
-            "name": "Microsoft.WindowsDesktop.App.Ref",
-            "version": "[8.0.25, 8.0.25]"
-          }
-        ],
         "frameworkReferences": {
           "Microsoft.AspNetCore.App": {
             "privateAssets": "none"
@@ -1563,7 +1539,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.201/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/lib64/dotnet/sdk/8.0.123/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

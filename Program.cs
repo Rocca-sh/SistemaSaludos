@@ -1,5 +1,6 @@
 using SistemaSaludos.Controller.HubPantalla;
 using SistemaSaludos.Service;
+using SistemaSaludos.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,8 +13,14 @@ builder.Services.AddControllers()
     });
 
 builder.Services.AddSignalR();
+builder.Services.AddHttpClient();
+
 builder.Services.AddSingleton<PantallaService>();
-builder.Services.AddSingleton<VisitService>();
+
+builder.Services.AddScoped<LoginRepository>();
+builder.Services.AddScoped<LoginService>();
+builder.Services.AddScoped<VisitRepository>();
+builder.Services.AddScoped<VisitService>();
 
 // CORS: AllowAnyOrigin() NO funciona con SignalR (bloquea credentials)
 // SetIsOriginAllowed acepta cualquier origen y permite AllowCredentials

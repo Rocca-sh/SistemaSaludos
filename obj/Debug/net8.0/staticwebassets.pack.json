@@ -1,6 +1,10 @@
 {
   "Files": [
     {
+      "Id": "/home/rocca/files/SistemaSaludos/wwwroot/css/login.css",
+      "PackagePath": "staticwebassets/css/login.css"
+    },
+    {
       "Id": "/home/rocca/files/SistemaSaludos/wwwroot/css/styles.css",
       "PackagePath": "staticwebassets/css/styles.css"
     },
@@ -21,6 +25,10 @@
       "PackagePath": "staticwebassets/js/config.js"
     },
     {
+      "Id": "/home/rocca/files/SistemaSaludos/wwwroot/js/login.js",
+      "PackagePath": "staticwebassets/js/login.js"
+    },
+    {
       "Id": "/home/rocca/files/SistemaSaludos/wwwroot/js/mensajes.js",
       "PackagePath": "staticwebassets/js/mensajes.js"
     },
@@ -33,12 +41,32 @@
       "PackagePath": "staticwebassets/js/signalrPanel.js"
     },
     {
+      "Id": "/home/rocca/files/SistemaSaludos/wwwroot/login.html",
+      "PackagePath": "staticwebassets/login.html"
+    },
+    {
       "Id": "/home/rocca/files/SistemaSaludos/wwwroot/pantalla-android.html",
       "PackagePath": "staticwebassets/pantalla-android.html"
     },
     {
       "Id": "/home/rocca/files/SistemaSaludos/wwwroot/pantalla-legacy.html",
       "PackagePath": "staticwebassets/pantalla-legacy.html"
+    },
+    {
+      "Id": "/home/rocca/files/SistemaSaludos/wwwroot/uploads/283819b4-cf5c-442f-a4d7-cb8a54e67679.jpg",
+      "PackagePath": "staticwebassets/uploads/283819b4-cf5c-442f-a4d7-cb8a54e67679.jpg"
+    },
+    {
+      "Id": "/home/rocca/files/SistemaSaludos/wwwroot/uploads/8443abed-b24f-48ad-8b36-8086183e3344.jpg",
+      "PackagePath": "staticwebassets/uploads/8443abed-b24f-48ad-8b36-8086183e3344.jpg"
+    },
+    {
+      "Id": "/home/rocca/files/SistemaSaludos/wwwroot/uploads/cda99b08-21ce-4264-b8dd-72703e43e818.jpg",
+      "PackagePath": "staticwebassets/uploads/cda99b08-21ce-4264-b8dd-72703e43e818.jpg"
+    },
+    {
+      "Id": "/home/rocca/files/SistemaSaludos/wwwroot/uploads/fdd6e453-3948-4a31-8942-491ea39698ea.png",
+      "PackagePath": "staticwebassets/uploads/fdd6e453-3948-4a31-8942-491ea39698ea.png"
     },
     {
       "Id": "obj/Debug/net8.0/staticwebassets/msbuild.PantallasIdeo.Microsoft.AspNetCore.StaticWebAssets.props",

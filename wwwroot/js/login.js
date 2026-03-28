@@ -50,11 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setLoading(true);
 
         try {
-            // =========================================================
-            // Lógica PENDIENTE DE API REAL
-            // Aquí deberás hacer el fetch a la API real de autenticación
-            // Ejemplo de cómo sería la llamada real:
-            /*
+            // LLAMADA A API REAL
             const response = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: {
@@ -64,28 +60,16 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (!response.ok) {
-                throw new Error('Credenciales inválidas');
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || 'Credenciales inválidas');
             }
 
             const data = await response.json();
             // Guardar token real
-            localStorage.setItem('auth_token', data.token || 'mock_token');
-            */
-            // =========================================================
-
-            // SIMULACIÓN DE LLAMADA API (Mock)
-            // Simulamos un retardo de red de 1 segundo
-            await new Promise(resolve => setTimeout(resolve, 1000));
-
-            // Simulamos lógica básica (temporal)
-            if (username === 'admin' && password === 'admin') {
-                // Login exitoso
-                localStorage.setItem('auth_token', 'token_temporal_simulado');
-                window.location.replace('/panel'); // Redirigir usando replace para no guardar historial
-            } else {
-                // Error de login
-                throw new Error('Usuario o contraseña incorrectos. (Usa admin/admin para probar)');
-            }
+            localStorage.setItem('auth_token', data.token);
+            
+            // Login exitoso
+            window.location.replace('/panel'); // Redirigir usando replace para no guardar historial
 
         } catch (error) {
             console.error('Error en login:', error);

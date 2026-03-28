@@ -1,53 +1,54 @@
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 using SistemaSaludos.Modelo.Visit;
 using SistemaSaludos.Service;
+
+namespace SistemaSaludos.Controller;
 
 [ApiController]
 [Route("api/visits")]
 public class VisitsController : ControllerBase
 {
-    private readonly VisitService _visitService;
+    private readonly VisitService visitService; // sin guion bajo
 
     public VisitsController(VisitService visitService)
     {
-        _visitService = visitService;
+        this.visitService = visitService; // No se usa guion bajo ni la palabra base
     }
 
     // GET /api/visits
-    // Devuelve todas las visitas
     [HttpGet]
-    public IActionResult GetAll() => Ok(_visitService.GetAll());
+    public async Task<IActionResult> GetAll() => Ok(await visitService.GetAllAsync());
 
     // GET /api/visits/today
-    // Devuelve solo las visitas de hoy
     [HttpGet("today")]
-    public IActionResult GetToday() => Ok(_visitService.GetToday());
+    public async Task<IActionResult> GetToday() => Ok(await visitService.GetTodayAsync());
 
     // GET /api/visits/{id}
     [HttpGet("{id}")]
-    public IActionResult GetById(int id)
+    public async Task<IActionResult> GetById(int id)
     {
-        var visit = _visitService.GetById(id);
+        var visit = await visitService.GetByIdAsync(id);
         if (visit == null) return NotFound();
         return Ok(visit);
     }
 
     // POST /api/visits
-    // Crea una visita manual
     [HttpPost]
-    public IActionResult Create([FromBody] Visit visit)
+    public async Task<IActionResult> Create([FromBody] Visit visit)
     {
         visit.source = "manual";
-        var created = _visitService.Add(visit);
+        var created = await visitService.AddAsync(visit);
+        if (created == null) return BadRequest("No se pudo crear desde el endpoint externo");
+        
         return CreatedAtAction(nameof(GetById), new { id = created.id }, created);
     }
 
     // POST /api/visits/sync
-    // Sincroniza visitas desde Ideeo
     [HttpPost("sync")]
-    public IActionResult SyncFromIdeeo()
+    public async Task<IActionResult> SyncFromIdeeo()
     {
-        var (synced, message) = _visitService.SyncFromIdeeo();
+        var (synced, message) = await visitService.SyncFromIdeeoAsync();
         return Ok(new { synced, message });
     }
 }
